@@ -22,11 +22,11 @@ function RandomString($length) {
 }
  
 // Check for token
-/* if(isset($_POST['secret']))
+ if(isset($_POST['secret']))
 {
     // Checks if token is valid
     if(in_array($_POST['secret'], $tokens))
-    { */
+    { 
         // Prepares for upload
         $filename = RandomString($lengthofstring);
         $target_file = $_FILES["sharex"]["name"];
@@ -50,6 +50,19 @@ function RandomString($length) {
             $json->status = "Failed";
             $json->errormsg = "File upload failed - CHMOD/Folder doesn\'t exist?";
         }  
+    } else {
+        // Invalid key
+        http_response_code(401); // Return 401 Unauthorized status code
+        $json->status = "Failed";
+        $json->errormsg = "Invalid Secret Key";
+    }
+} else {
+    // Warning if no uploaded data
+    http_response_code(400); // Return 400 Bad Request status code
+    $json->status = "Failed";
+    $json->errormsg = "No post data recieved'";
+}
+
 // Sends json
 echo(json_encode($json));
 ?>
