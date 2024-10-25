@@ -16,16 +16,16 @@ function isStrongPassword($password) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
+    $usernameOrEmail = $_POST['usernameOrEmail'];
     $password = $_POST['password'];
 
-    if (empty($username) || empty($password)) {
+    if (empty($usernameOrEmail) || empty($password)) {
         echo "Please fill in all fields.";
         exit;
     }
 
-    if (!isValidEmail($username)) {
-        echo "Invalid email format.";
+    if (!isValidEmail($usernameOrEmail) && !preg_match('/^[a-zA-Z0-9_]+$/', $usernameOrEmail)) {
+        echo "Invalid username or email format.";
         exit;
     }
 
@@ -34,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    $stmt = $conn->prepare("SELECT id, password, is_admin FROM users WHERE username = ?");
-    $stmt->bind_param("s", $username);
+    $stmt = $conn->prepare("SELECT id, password, is_admin FROM users WHERE username = ? OR email = ?");
+    $stmt->bind_param("ss", $usernameOrEmail, $usernameOrEmail);
     $stmt->execute();
     $stmt->store_result();
 
@@ -52,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             exit;
         } else {
-            echo "Invalid username or password.";
+            echo "Invalid password.";
         }
     } else {
-        echo "Invalid username or password.";
+        echo "Username or email not found.";
     }
 
     $stmt->close();
@@ -80,13 +80,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <button onclick="toggleMode()">Toggle Light/Dark Mode</button>
     <h2>Login</h2>
     <form method="POST" action="auth.php">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+        <label for="usernameOrEmail">Username or Email:</label>
+        <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
         <br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
         <br>
         <button type="submit">Login</button>
     </form>
+    <a href="forgot_password.php">Forgot Password?</a>
 </body>
 </html>

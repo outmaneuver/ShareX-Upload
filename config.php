@@ -20,4 +20,7 @@ CREATE TABLE IF NOT EXISTS site_statistics (
 if ($conn->query($createTableQuery) === FALSE) {
     die("Error creating table: " . $conn->error);
 }
+
+// Add a new configuration setting for the forgot password domain
+define('FORGOT_PASSWORD_DOMAIN', 'your_default_domain.com');
 ?>

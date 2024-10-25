@@ -32,6 +32,13 @@ while ($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
+// Fetch current forgot password domain
+$stmt = $conn->prepare("SELECT value FROM site_statistics WHERE name = 'forgot_password_domain'");
+$stmt->execute();
+$stmt->bind_result($forgot_password_domain);
+$stmt->fetch();
+$stmt->close();
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['post_announcement'])) {
@@ -69,6 +76,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $upload_size = $_POST['upload_size'];
         $stmt = $conn->prepare("UPDATE users SET upload_size = ? WHERE id = ?");
         $stmt->bind_param("ii", $upload_size, $user_id_to_set);
+        $stmt->execute();
+        $stmt->close();
+        header("Location: admin_dashboard.php");
+        exit;
+    }
+
+    if (isset($_POST['update_forgot_password_domain'])) {
+        $new_domain = $_POST['forgot_password_domain'];
+        $stmt = $conn->prepare("UPDATE site_statistics SET value = ? WHERE name = 'forgot_password_domain'");
+        $stmt->bind_param("s", $new_domain);
         $stmt->execute();
         $stmt->close();
         header("Location: admin_dashboard.php");
@@ -119,6 +136,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <input type="number" id="upload_size" name="upload_size" required>
         <br>
         <button type="submit" name="set_upload_size">Set Upload Size</button>
+    </form>
+
+    <h3>Forgot Password Domain</h3>
+    <form method="POST" action="admin_dashboard.php">
+        <label for="forgot_password_domain">Forgot Password Domain:</label>
+        <input type="text" id="forgot_password_domain" name="forgot_password_domain" value="<?php echo $forgot_password_domain; ?>" required>
+        <br>
+        <button type="submit" name="update_forgot_password_domain">Update Domain</button>
     </form>
 </body>
 </html>
