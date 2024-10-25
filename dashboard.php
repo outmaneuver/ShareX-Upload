@@ -55,8 +55,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        function toggleMode() {
+            var element = document.body;
+            element.classList.toggle("dark-mode");
+        }
+    </script>
 </head>
 <body>
+    <button onclick="toggleMode()">Toggle Light/Dark Mode</button>
     <h2>Dashboard</h2>
     <h3>Your Images</h3>
     <ul>
@@ -78,6 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <br>
         <label for="upload_password">Upload Password:</label>
         <input type="password" id="upload_password" name="upload_password" value="<?php echo $upload_password; ?>" required>
+        <br>
+        <label for="domain">Select Domain:</label>
+        <select id="domain" name="domain">
+            <option value="domain1.com">domain1.com</option>
+            <option value="domain2.com">domain2.com</option>
+        </select>
+        <br>
+        <label for="hide_user_info">Hide User Information:</label>
+        <input type="checkbox" id="hide_user_info" name="hide_user_info">
         <br>
         <button type="submit" name="update_settings">Update Settings</button>
     </form>
