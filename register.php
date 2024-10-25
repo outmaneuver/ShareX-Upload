@@ -1,18 +1,42 @@
 <?php
 require 'config.php';
 
+function isValidEmail($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL);
+}
+
+function isStrongPassword($password) {
+    $containsLetter  = preg_match('/[a-zA-Z]/', $password);
+    $containsDigit   = preg_match('/\d/', $password);
+    $containsSpecial = preg_match('/[^a-zA-Z\d]/', $password);
+    $isLongEnough    = strlen($password) >= 8;
+
+    return $containsLetter && $containsDigit && $containsSpecial && $isLongEnough;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    if (empty($username) || empty($password) || empty($confirm_password)) {
+    if (empty($username) || empty($email) || empty($password) || empty($confirm_password)) {
         echo "Please fill in all fields.";
+        exit;
+    }
+
+    if (!isValidEmail($email)) {
+        echo "Invalid email format.";
         exit;
     }
 
     if ($password !== $confirm_password) {
         echo "Passwords do not match.";
+        exit;
+    }
+
+    if (!isStrongPassword($password)) {
+        echo "Password must be at least 8 characters long and include at least one letter, one number, and one special character.";
         exit;
     }
 
@@ -28,10 +52,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $stmt->close();
 
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        echo "Email already registered.";
+        exit;
+    }
+
+    $stmt->close();
+
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-    $stmt->bind_param("ss", $username, $hashed_password);
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+    $stmt->bind_param("sss", $username, $email, $hashed_password);
 
     if ($stmt->execute()) {
         echo "Registration successful. You can now <a href='auth.php'>login</a>.";
@@ -63,6 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <form method="POST" action="register.php">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
         <br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>

@@ -2,12 +2,35 @@
 session_start();
 require 'config.php';
 
+function isValidEmail($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL);
+}
+
+function isStrongPassword($password) {
+    $containsLetter  = preg_match('/[a-zA-Z]/', $password);
+    $containsDigit   = preg_match('/\d/', $password);
+    $containsSpecial = preg_match('/[^a-zA-Z\d]/', $password);
+    $isLongEnough    = strlen($password) >= 8;
+
+    return $containsLetter && $containsDigit && $containsSpecial && $isLongEnough;
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
     if (empty($username) || empty($password)) {
         echo "Please fill in all fields.";
+        exit;
+    }
+
+    if (!isValidEmail($username)) {
+        echo "Invalid email format.";
+        exit;
+    }
+
+    if (!isStrongPassword($password)) {
+        echo "Password must be at least 8 characters long and include at least one letter, one number, and one special character.";
         exit;
     }
 
