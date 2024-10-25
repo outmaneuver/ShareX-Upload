@@ -4,13 +4,31 @@ ini_set('display_errors', 1);
 ini_set('log_errors', 1);
 ini_set('error_log', 'error_log.txt');
 
-$tokens = array(""); // Tokens go here
+session_start();
+require 'config.php';
+
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401); // Return 401 Unauthorized status code
+    $json->status = "Failed";
+    $json->errormsg = "Unauthorized access. Please log in.";
+    echo(json_encode($json));
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch user settings
+$stmt = $conn->prepare("SELECT file_name_length, upload_password FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$stmt->bind_result($file_name_length, $upload_password);
+$stmt->fetch();
+$stmt->close();
 
 $allowedFiles = array("png", "jpg", "gif", "txt");
 $maxFileSize = 5 * 1024 * 1024; // 5 MB
 
 $sharexdir = "./"; // File directory
-$lengthofstring = 10; // Length of file name
 
 $json = new StdClass();
 
@@ -22,9 +40,9 @@ function RandomString($length) {
 // Check for token
 if (isset($_POST['secret'])) {
     // Checks if token is valid
-    if (in_array($_POST['secret'], $tokens)) {
+    if ($_POST['secret'] === $upload_password) {
         // Prepares for upload
-        $filename = RandomString($lengthofstring);
+        $filename = RandomString($file_name_length);
         $target_file = $_FILES["sharex"]["name"];
         $fileType = pathinfo($target_file, PATHINFO_EXTENSION);
         $fileSize = $_FILES["sharex"]["size"];
@@ -41,6 +59,12 @@ if (isset($_POST['secret'])) {
             $json->errormsg = "File size exceeds the maximum limit!";
         // Accepts and moves to directory
         } else if (move_uploaded_file($_FILES["sharex"]["tmp_name"], $sharexdir.$filename.'.'.$fileType)) {
+            // Store file metadata in the database
+            $stmt = $conn->prepare("INSERT INTO uploads (user_id, filename) VALUES (?, ?)");
+            $stmt->bind_param("is", $user_id, $filename.'.'.$fileType);
+            $stmt->execute();
+            $stmt->close();
+
             // Sends info to client
             $json->status = "OK";
             $json->errormsg = null;
