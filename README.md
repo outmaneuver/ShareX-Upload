@@ -16,7 +16,7 @@ The program can be found over at https://getsharex.com/
 ### `upload.php`
 
 - **Tokens**: Add your tokens to the `$tokens` array in `upload.php`. These tokens are used to authenticate the upload requests.
-- **Allowed File Types**: Configure the allowed file types by modifying the `$allowedFiles` array in `upload.php`.
+- **Allowed File Types**: Configure the allowed file types by modifying the `$allowedFiles$ array in `upload.php`.
 - **Maximum File Size**: Set the maximum file size for uploads by changing the `$maxFileSize` variable in `upload.php`.
 
 ### `example.sxcu`
@@ -36,6 +36,10 @@ The program can be found over at https://getsharex.com/
 2. Click on `Import` and select the `example.sxcu` file.
 3. Configure the uploader settings as needed.
 4. Use ShareX to capture or record your screen and upload the file using the custom uploader.
+
+### Viewing Uploaded Images
+
+To view uploaded images, visit the URL `https://YourDomain.com/view_image.php?id=<image_id>`. Replace `<image_id>` with the actual image ID.
 
 ## Error Handling and Logging
 
