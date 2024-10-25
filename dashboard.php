@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <ul>
         <?php foreach ($images as $image): ?>
             <li>
-                <img src="<?php echo $image['filename']; ?>" alt="Image" width="100">
+                <img src="<?php echo pathinfo($image['filename'], PATHINFO_FILENAME); ?>" alt="Image" width="100">
                 <form method="POST" action="dashboard.php">
                     <input type="hidden" name="image_id" value="<?php echo $image['id']; ?>">
                     <button type="submit" name="delete_image">Delete</button>
