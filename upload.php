@@ -37,6 +37,18 @@ function RandomString($length) {
     return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyz', ceil($length/strlen($x)) )),1,$length);
 }
 
+// Function to fetch file extension based on file name
+function getFileExtension($filename) {
+    global $conn;
+    $stmt = $conn->prepare("SELECT filename FROM uploads WHERE filename = ?");
+    $stmt->bind_param("s", $filename);
+    $stmt->execute();
+    $stmt->bind_result($full_filename);
+    $stmt->fetch();
+    $stmt->close();
+    return pathinfo($full_filename, PATHINFO_EXTENSION);
+}
+
 // Check for token
 if (isset($_POST['secret'])) {
     // Checks if token is valid
@@ -58,17 +70,17 @@ if (isset($_POST['secret'])) {
             $json->status = "Failed";
             $json->errormsg = "File size exceeds the maximum limit!";
         // Accepts and moves to directory
-        } else if (move_uploaded_file($_FILES["sharex"]["tmp_name"], $sharexdir.$filename.'.'.$fileType)) {
+        } else if (move_uploaded_file($_FILES["sharex"]["tmp_name"], $sharexdir.$filename)) {
             // Store file metadata in the database
             $stmt = $conn->prepare("INSERT INTO uploads (user_id, filename, hide_user_info) VALUES (?, ?, ?)");
-            $stmt->bind_param("isi", $user_id, $filename.'.'.$fileType, $hide_user_info);
+            $stmt->bind_param("isi", $user_id, $filename, $hide_user_info);
             $stmt->execute();
             $stmt->close();
 
             // Sends info to client
             $json->status = "OK";
             $json->errormsg = null;
-            $json->url = $filename . '.' . $fileType;
+            $json->url = $filename;
         } else {
             // Warning
             http_response_code(400); // Return 400 Bad Request status code
