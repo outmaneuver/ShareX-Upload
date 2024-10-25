@@ -78,6 +78,14 @@ The `upload.php` script includes error handling and logging mechanisms. Errors a
 3. The administrator dashboard includes an announcement section.
 4. Administrators can post announcements from the administrator dashboard.
 
-## License
+## User Management Functionalities
 
-This project is licensed under the GNU General Public License v3.0. See the `LICENSE` file for more details.
+1. Administrators can suspend or delete users from the administrator dashboard.
+2. Administrators can set upload size limits for individual users.
+3. Administrators can update the forgot password domain from the administrator dashboard.
+
+## Site Statistics Functionalities
+
+1. The dashboard displays site statistics such as registered users, total uploads, total uploaded data size, and host system version.
+2. Administrators can view site statistics from the administrator dashboard.
+3. The `config/config.php` file includes the configuration for site statistics.
