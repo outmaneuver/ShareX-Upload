@@ -18,10 +18,10 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Fetch user settings
-$stmt = $conn->prepare("SELECT file_name_length, upload_password FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT file_name_length, upload_password, hide_user_info FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
-$stmt->bind_result($file_name_length, $upload_password);
+$stmt->bind_result($file_name_length, $upload_password, $hide_user_info);
 $stmt->fetch();
 $stmt->close();
 
@@ -60,8 +60,8 @@ if (isset($_POST['secret'])) {
         // Accepts and moves to directory
         } else if (move_uploaded_file($_FILES["sharex"]["tmp_name"], $sharexdir.$filename.'.'.$fileType)) {
             // Store file metadata in the database
-            $stmt = $conn->prepare("INSERT INTO uploads (user_id, filename) VALUES (?, ?)");
-            $stmt->bind_param("is", $user_id, $filename.'.'.$fileType);
+            $stmt = $conn->prepare("INSERT INTO uploads (user_id, filename, hide_user_info) VALUES (?, ?, ?)");
+            $stmt->bind_param("isi", $user_id, $filename.'.'.$fileType, $hide_user_info);
             $stmt->execute();
             $stmt->close();
 

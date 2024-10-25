@@ -41,8 +41,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        function toggleMode() {
+            var element = document.body;
+            element.classList.toggle("dark-mode");
+        }
+    </script>
 </head>
 <body>
+    <button onclick="toggleMode()">Toggle Light/Dark Mode</button>
     <h2>Login</h2>
     <form method="POST" action="auth.php">
         <label for="username">Username:</label>

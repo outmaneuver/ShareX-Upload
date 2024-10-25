@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     $stmt = $conn->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-    $stmt->bind_param("s", $username, $hashed_password);
+    $stmt->bind_param("ss", $username, $hashed_password);
 
     if ($stmt->execute()) {
         echo "Registration successful. You can now <a href='auth.php'>login</a>.";
@@ -49,8 +49,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        function toggleMode() {
+            var element = document.body;
+            element.classList.toggle("dark-mode");
+        }
+    </script>
 </head>
 <body>
+    <button onclick="toggleMode()">Toggle Light/Dark Mode</button>
     <h2>Register</h2>
     <form method="POST" action="register.php">
         <label for="username">Username:</label>
