@@ -25,6 +25,19 @@ $stmt->bind_result($file_name_length, $upload_password);
 $stmt->fetch();
 $stmt->close();
 
+// Fetch site statistics
+$statistics = [];
+$stat_names = ['registered_users', 'total_uploads', 'total_uploaded_data_size', 'host_system_version'];
+foreach ($stat_names as $stat_name) {
+    $stmt = $conn->prepare("SELECT value FROM site_statistics WHERE name = ?");
+    $stmt->bind_param("s", $stat_name);
+    $stmt->execute();
+    $stmt->bind_result($value);
+    $stmt->fetch();
+    $statistics[$stat_name] = $value;
+    $stmt->close();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['delete_image'])) {
         $image_id = $_POST['image_id'];
@@ -98,5 +111,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <br>
         <button type="submit" name="update_settings">Update Settings</button>
     </form>
+
+    <h3>Site Statistics</h3>
+    <div class="statistics-box">
+        <p>Registered Users: <?php echo $statistics['registered_users']; ?></p>
+    </div>
+    <div class="statistics-box">
+        <p>Total Uploads: <?php echo $statistics['total_uploads']; ?></p>
+    </div>
+    <div class="statistics-box">
+        <p>Total Uploaded Data Size: <?php echo $statistics['total_uploaded_data_size']; ?></p>
+    </div>
+    <div class="statistics-box">
+        <p>Host System Version: <?php echo $statistics['host_system_version']; ?></p>
+    </div>
 </body>
 </html>

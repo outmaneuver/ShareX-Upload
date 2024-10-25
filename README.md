@@ -69,9 +69,15 @@ The `upload.php` script includes error handling and logging mechanisms. Errors a
 1. The dashboard allows users to view and delete their uploaded images.
 2. Users can also customize settings such as file name length and upload endpoint password.
 3. The dashboard is accessible only to logged-in users.
+4. The dashboard includes 4 boxes to show site statistics such as registered users, total uploads, total uploaded data size, and version of the host system.
+
+## Administrator Dashboard
+
+1. The administrator dashboard allows administrators to control service settings, user management, and view site statistics.
+2. Administrators can control allowed file types, general upload size limit, and user management such as suspending or deleting accounts.
+3. The administrator dashboard includes an announcement section.
+4. Administrators can post announcements from the administrator dashboard.
 
 ## License
 
 This project is licensed under the GNU General Public License v3.0. See the `LICENSE` file for more details.
-
-P.S. there are tutorials on youtube.com if you can't follow these steps :)
