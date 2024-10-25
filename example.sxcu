@@ -7,4 +7,12 @@
   "Body": "MultipartFormData",
   "FileFormName": "sharex",
   "URL": "https://YourDomain.com/$json:url$"
+  // The version of the ShareX configuration file.
+  // The name of the configuration.
+  // The type of destination (e.g., ImageUploader, TextUploader, FileUploader).
+  // The type of HTTP request (e.g., POST).
+  // The URL of the `upload.php` script on your server.
+  // The body type of the request (e.g., MultipartFormData).
+  // The name of the form field for the file upload (e.g., sharex).
+  // The URL format for the uploaded file.
 }
