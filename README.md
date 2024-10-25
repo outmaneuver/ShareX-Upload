@@ -47,6 +47,25 @@ The `upload.php` script includes error handling and logging mechanisms. Errors a
 - Use strong and unique tokens for authentication.
 - Regularly review and update the allowed file types and maximum file size settings.
 
+## MySQL Setup
+
+1. Install MySQL on your server if it is not already installed.
+2. Create a new database for the ShareX upload system.
+3. Import the provided `database.sql` file to create the necessary tables.
+4. Update the `config.php` file with your MySQL database credentials.
+
+## User Registration and Login
+
+1. Users can register by visiting the `register.php` page.
+2. After registration, users can log in by visiting the `auth.php` page.
+3. Upon successful login, users will be redirected to the dashboard.
+
+## Dashboard
+
+1. The dashboard allows users to view and delete their uploaded images.
+2. Users can also customize settings such as file name length and upload endpoint password.
+3. The dashboard is accessible only to logged-in users.
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0. See the `LICENSE` file for more details.
