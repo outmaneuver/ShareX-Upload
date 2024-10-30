@@ -1,5 +1,5 @@
 # Share-X-Upload
-ShareX upload script made for apache web servers with filetype support!
+ShareX upload script made for file sharing CDN system with filetype support!
 
 Disclaimer: ShareX is a free and open source program that lets you capture or record any area of your screen and share it with a single press of a key.
 The program can be found over at https://getsharex.com/
