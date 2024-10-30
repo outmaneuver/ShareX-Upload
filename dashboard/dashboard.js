@@ -1,9 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const mongoose = require('mongoose');
-const User = require('../models/user');
-const Upload = require('../models/upload');
-const SiteStatistic = require('../models/siteStatistic');
+import express from 'express';
+import mongoose from 'mongoose';
+import User from '../models/user';
+import Upload from '../models/upload';
+import SiteStatistic from '../models/siteStatistic';
 
 // Middleware to check if the user is authenticated
 function isAuthenticated(req, res, next) {
@@ -72,4 +71,4 @@ router.post('/update_settings', isAuthenticated, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

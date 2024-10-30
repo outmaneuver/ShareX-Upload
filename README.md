@@ -8,8 +8,8 @@ The program can be found over at https://getsharex.com/
 
 1. Clone the repository to your local machine.
 2. Navigate to the project directory.
-3. Install the required dependencies using `npm install`.
-4. Start the server using `npm start`.
+3. Install the required dependencies using `bun install`.
+4. Start the server using `bun run index.js`.
 5. Configure the `example.sxcu` file with your domain name and other settings.
 6. Import the `example.sxcu` file into ShareX.
 7. You should now be able to upload files directly to your site via ShareX.

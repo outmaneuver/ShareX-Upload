@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import mongoose from 'mongoose';
+import Announcement from '../models/announcement';
+import User from '../models/user';
+import SiteStatistic from '../models/siteStatistic';
+
 const router = express.Router();
-const mongoose = require('mongoose');
-const Announcement = require('../models/announcement');
-const User = require('../models/user');
-const SiteStatistic = require('../models/siteStatistic');
 
 // Middleware to check if the user is an admin
 function isAdmin(req, res, next) {
@@ -87,4 +88,4 @@ router.get('/forgot_password_domain', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

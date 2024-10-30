@@ -1,0 +1,21 @@
+{
+  "name": "sharex-upload",
+  "version": "1.0.0",
+  "description": "ShareX upload script made for file sharing CDN system with filetype support",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.js"
+  },
+  "dependencies": {
+    "bun": "^0.1.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.10.9",
+    "bcrypt": "^5.0.0",
+    "crypto": "^1.0.1",
+    "nodemailer": "^6.4.16",
+    "multer": "^1.4.2",
+    "path": "^0.12.7",
+    "body-parser": "^1.19.0"
+  }
+}

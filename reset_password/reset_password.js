@@ -1,9 +1,8 @@
-const express = require('express');
-const router = express.Router();
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const User = require('../models/User');
-const PasswordReset = require('../models/PasswordReset');
+import express from 'express';
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import User from '../models/User';
+import PasswordReset from '../models/PasswordReset';
 
 // Validate email format
 function isValidEmail(email) {
@@ -94,4 +93,4 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

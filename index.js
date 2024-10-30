@@ -1,7 +1,7 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const path = require('path');
+import express from 'express';
+import mongoose from 'mongoose';
+import bodyParser from 'body-parser';
+import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,13 +20,13 @@ mongoose.connect('mongodb://localhost:27017/sharex', {
 });
 
 // Import routes
-const adminDashboardRoutes = require('./admin/admin_dashboard');
-const authRoutes = require('./auth/auth');
-const dashboardRoutes = require('./dashboard/dashboard');
-const forgotPasswordRoutes = require('./forgot_password/forgot_password');
-const registerRoutes = require('./register');
-const resetPasswordRoutes = require('./reset_password/reset_password');
-const uploadRoutes = require('./upload/upload');
+import adminDashboardRoutes from './admin/admin_dashboard';
+import authRoutes from './auth/auth';
+import dashboardRoutes from './dashboard/dashboard';
+import forgotPasswordRoutes from './forgot_password/forgot_password';
+import registerRoutes from './register';
+import resetPasswordRoutes from './reset_password/reset_password';
+import uploadRoutes from './upload/upload';
 
 // Use routes
 app.use('/admin_dashboard', adminDashboardRoutes);

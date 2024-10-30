@@ -1,10 +1,9 @@
-const express = require('express');
-const router = express.Router();
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const User = require('../models/User');
-const PasswordReset = require('../models/PasswordReset');
-const SiteStatistic = require('../models/SiteStatistic');
+import express from 'express';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import User from '../models/User';
+import PasswordReset from '../models/PasswordReset';
+import SiteStatistic from '../models/SiteStatistic';
 
 // Validate email format
 function isValidEmail(email) {
@@ -105,4 +104,4 @@ router.post('/update-password', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

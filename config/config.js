@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 mongoose.connect('mongodb://localhost:27017/sharex', {
   useNewUrlParser: true,
@@ -31,7 +31,7 @@ const User = mongoose.model('User', userSchema);
 const Announcement = mongoose.model('Announcement', announcementSchema);
 const SiteStatistic = mongoose.model('SiteStatistic', siteStatisticSchema);
 
-module.exports = {
+export {
   User,
   Announcement,
   SiteStatistic,
