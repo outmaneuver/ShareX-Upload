@@ -1,8 +1,7 @@
-const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const { User, Upload } = require('../config/config');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import { User, Upload } from '../config/config';
 
 // Middleware to check if the user is authenticated
 function isAuthenticated(req, res, next) {
@@ -45,4 +44,4 @@ router.post('/upload', isAuthenticated, upload.single('sharex'), async (req, res
     }
 });
 
-module.exports = router;
+export default router;

@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcrypt';
+import User from '../models/User';
+
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const User = require('../models/User');
 
 // Validate email format
 function isValidEmail(email) {
@@ -58,4 +59,4 @@ router.post('/login', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
