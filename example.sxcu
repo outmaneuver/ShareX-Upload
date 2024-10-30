@@ -3,7 +3,7 @@
   "Name": "Example",
   "DestinationType": "ImageUploader, TextUploader, FileUploader",
   "RequestType": "POST",
-  "RequestURL": "https://YourDomain.com/upload.php",
+  "RequestURL": "https://YourDomain.com/upload",
   "Body": "MultipartFormData",
   "FileFormName": "sharex",
   "URL": "https://YourDomain.com/$json:url$"
