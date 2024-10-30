@@ -6,18 +6,21 @@ The program can be found over at https://getsharex.com/
 
 ## Installation
 
-1. Upload the `upload.php` script to your web server.
-2. Configure the `example.sxcu` file with your domain name and other settings.
-3. Import the `example.sxcu` file into ShareX.
-4. You should now be able to upload files directly to your site via ShareX.
+1. Clone the repository to your local machine.
+2. Navigate to the project directory.
+3. Install the required dependencies using `npm install`.
+4. Start the server using `npm start`.
+5. Configure the `example.sxcu` file with your domain name and other settings.
+6. Import the `example.sxcu` file into ShareX.
+7. You should now be able to upload files directly to your site via ShareX.
 
 ## Configuration
 
-### `upload.php`
+### `upload.js`
 
-- **Tokens**: Add your tokens to the `$tokens` array in `upload.php`. These tokens are used to authenticate the upload requests.
-- **Allowed File Types**: Configure the allowed file types by modifying the `$allowedFiles$ array in `upload.php`.
-- **Maximum File Size**: Set the maximum file size for uploads by changing the `$maxFileSize` variable in `upload.php`.
+- **Tokens**: Add your tokens to the `tokens` array in `upload.js`. These tokens are used to authenticate the upload requests.
+- **Allowed File Types**: Configure the allowed file types by modifying the `allowedFiles` array in `upload.js`.
+- **Maximum File Size**: Set the maximum file size for uploads by changing the `maxFileSize` variable in `upload.js`.
 
 ### `example.sxcu`
 
@@ -25,7 +28,7 @@ The program can be found over at https://getsharex.com/
 - **Name**: The name of the configuration.
 - **DestinationType**: The type of destination (e.g., ImageUploader, TextUploader, FileUploader).
 - **RequestType**: The type of HTTP request (e.g., POST).
-- **RequestURL**: The URL of the `upload.php` script on your server.
+- **RequestURL**: The URL of the `upload.js` script on your server.
 - **Body**: The body type of the request (e.g., MultipartFormData).
 - **FileFormName**: The name of the form field for the file upload (e.g., sharex).
 - **URL**: The URL format for the uploaded file.
@@ -43,11 +46,11 @@ To view uploaded images, visit the URL `https://YourDomain.com/view_image.php?id
 
 ## Error Handling and Logging
 
-The `upload.php` script includes error handling and logging mechanisms. Errors are logged to the `error_log.txt` file in the same directory as the script. The script returns appropriate HTTP status codes and error messages in the JSON response.
+The `upload.js` script includes error handling and logging mechanisms. Errors are logged to the `error_log.txt` file in the same directory as the script. The script returns appropriate HTTP status codes and error messages in the JSON response.
 
 ## Security
 
-- Ensure that the `upload.php` script is not publicly accessible without proper authentication.
+- Ensure that the `upload.js` script is not publicly accessible without proper authentication.
 - Use strong and unique tokens for authentication.
 - Regularly review and update the allowed file types and maximum file size settings.
 
@@ -56,12 +59,12 @@ The `upload.php` script includes error handling and logging mechanisms. Errors a
 1. Install MySQL on your server if it is not already installed.
 2. Create a new database for the ShareX upload system.
 3. Import the provided `database.sql` file to create the necessary tables.
-4. Update the `config.php` file with your MySQL database credentials.
+4. Update the `config.js` file with your MySQL database credentials.
 
 ## User Registration and Login
 
-1. Users can register by visiting the `register.php` page.
-2. After registration, users can log in by visiting the `auth.php` page.
+1. Users can register by visiting the `register` route.
+2. After registration, users can log in by visiting the `auth` route.
 3. Upon successful login, users will be redirected to the dashboard.
 
 ## Dashboard
@@ -88,4 +91,42 @@ The `upload.php` script includes error handling and logging mechanisms. Errors a
 
 1. The dashboard displays site statistics such as registered users, total uploads, total uploaded data size, and host system version.
 2. Administrators can view site statistics from the administrator dashboard.
-3. The `config/config.php` file includes the configuration for site statistics.
+3. The `config/config.js` file includes the configuration for site statistics.
+
+## New Routes and Functionalities
+
+### `admin/admin_dashboard.js`
+
+- **Post Announcement**: Route to post an announcement.
+- **Suspend User**: Route to suspend a user.
+- **Delete User**: Route to delete a user.
+- **Set Upload Size**: Route to set upload size for a user.
+- **Update Forgot Password Domain**: Route to update forgot password domain.
+- **Fetch Announcements**: Route to fetch announcements.
+- **Fetch Forgot Password Domain**: Route to fetch forgot password domain.
+
+### `auth/auth.js`
+
+- **Login**: Route for user login.
+
+### `dashboard/dashboard.js`
+
+- **Fetch User Images**: Route to fetch user images.
+- **Fetch User Settings**: Route to fetch user settings.
+- **Fetch Site Statistics**: Route to fetch site statistics.
+- **Delete Image**: Route to delete an image.
+- **Update User Settings**: Route to update user settings.
+
+### `forgot_password/forgot_password.js`
+
+- **Request Password Reset**: Route to request password reset.
+- **Update Password**: Route to update password.
+
+### `reset_password/reset_password.js`
+
+- **Request Password Reset**: Route to request password reset.
+- **Reset Password**: Route to reset password.
+
+## Project Description Update
+
+This project is no longer just a script but a file sharing CDN system.
