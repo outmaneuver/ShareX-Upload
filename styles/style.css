@@ -70,3 +70,15 @@ img {
     max-width: 100%;
     height: auto;
 }
+
+.statistics-box {
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.statistics-box p {
+    margin: 0;
+}
