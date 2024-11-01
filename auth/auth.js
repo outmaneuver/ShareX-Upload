@@ -19,6 +19,11 @@ function isStrongPassword(password) {
     return containsLetter && containsDigit && containsSpecial && isLongEnough;
 }
 
+// GET route for login page
+router.get('/login', (req, res) => {
+    res.sendFile('login.html', { root: './public' });
+});
+
 // User login route
 router.post('/login', async (req, res) => {
     const { usernameOrEmail, password } = req.body;

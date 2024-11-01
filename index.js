@@ -16,6 +16,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve static files from public directory
+app.use(express.static('public'));
+app.use('/styles', express.static('styles'));
+
 // Session configuration
 if (!process.env.SESSION_SECRET) {
   console.error('Error: SESSION_SECRET environment variable is not set.');
@@ -41,7 +45,7 @@ app.use('/register', require('./register'));
 app.use('/reset_password', require('./reset_password/reset_password'));
 app.use('/upload', require('./upload/upload'));
 
-// Add this after your other routes
+// Root route redirect
 app.get('/', (req, res) => {
     res.redirect('/auth/login'); // Redirect to login page
 });

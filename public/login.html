@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+    <form action="/auth/login" method="POST">
+        <h2>Login</h2>
+        <label for="usernameOrEmail">Username or Email:</label>
+        <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        
+        <button type="submit">Login</button>
+        
+        <p><a href="/register">Register</a> | <a href="/forgot_password">Forgot Password?</a></p>
+    </form>
+</body>
+</html>
