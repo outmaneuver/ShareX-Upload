@@ -12,18 +12,27 @@
                 <h1>Settings</h1>
                 <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
             </div>
+            <div class="nav-right">
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="checkbox">
+                        <input type="checkbox" id="checkbox" />
+                        <div class="slider round"></div>
+                    </label>
+                    <span class="theme-label">Theme</span>
+                </div>
+            </div>
         </nav>
 
         <div class="settings-grid">
             <div class="card">
                 <h3>Account Information</h3>
-                <div class="form-group">
+                <div class="info-group">
                     <label>Email</label>
-                    <input type="email" id="userEmail" disabled>
+                    <div class="info-value" id="userEmail"></div>
                 </div>
-                <div class="form-group">
+                <div class="info-group">
                     <label>Username</label>
-                    <input type="text" id="username" disabled>
+                    <div class="info-value" id="username"></div>
                 </div>
             </div>
 
@@ -36,10 +45,14 @@
                     </div>
                     <div class="form-group">
                         <label for="upload_password">Upload Password</label>
-                        <input type="text" id="upload_password" name="upload_password" readonly>
-                        <button type="button" onclick="generateUploadPassword()" class="btn btn-secondary">Generate New Password</button>
+                        <div class="password-input-group">
+                            <input type="text" id="upload_password" name="upload_password" placeholder="Enter password or generate one">
+                            <button type="button" onclick="generateUploadPassword()" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt"></i> Generate
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group checkbox-group">
                         <label>
                             <input type="checkbox" id="hide_user_info" name="hide_user_info">
                             Hide User Info
@@ -69,6 +82,7 @@
             </div>
         </div>
     </div>
+    <script src="/js/theme.js"></script>
     <script src="/js/settings.js"></script>
 </body>
 </html> 

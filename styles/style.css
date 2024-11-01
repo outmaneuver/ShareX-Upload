@@ -632,3 +632,56 @@ input:checked + .slider:before {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
+
+/* Add to your existing CSS */
+
+/* Settings Page Specific Styles */
+.settings-grid {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+}
+
+.info-group {
+    margin-bottom: 1rem;
+}
+
+.info-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.info-value {
+    padding: 0.75rem;
+    background: var(--stat-box-bg);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-family: monospace;
+}
+
+.password-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.password-input-group input {
+    flex: 1;
+}
+
+.password-input-group button {
+    white-space: nowrap;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 8px;
+}
