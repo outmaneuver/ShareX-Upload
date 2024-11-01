@@ -16,6 +16,7 @@ connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use('/styles', express.static(path.join(__dirname, 'styles')));
 
 // Session configuration
 app.use(session({
@@ -32,7 +33,7 @@ app.use(session({
 }));
 
 // Routes
-app.use('/auth', require('./auth/auth'));
+app.use('/auth', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/register', require('./routes/register'));
 app.use('/i', require('./routes/images'));
@@ -42,16 +43,24 @@ app.get('/', (req, res) => {
     if (req.session.userId) {
         res.redirect('/dashboard');
     } else {
-        res.redirect('/auth/login');
+        res.redirect('/login');
     }
 });
 
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    }
 });
 
 app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'register.html'));
+    }
 });
 
 app.get('/dashboard', (req, res) => {

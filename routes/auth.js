@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../config/config');
+const path = require('path');
 
 router.get('/login', (req, res) => {
     if (req.session.userId) {
         res.redirect('/dashboard');
     } else {
-        res.sendFile('login.html', { root: './public' });
+        res.sendFile(path.join(__dirname, '../public/login.html'));
     }
 });
 
