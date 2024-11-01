@@ -1,41 +1,31 @@
 const { User } = require('../config/config');
 
-async function isAuthenticated(req, res, next) {
+exports.isAuthenticated = async (req, res, next) => {
     try {
-        if (!req.session || !req.session.userId || !req.session.isAuthenticated) {
-            if (req.xhr || req.headers.accept.includes('json')) {
-                return res.status(401).json({
-                    status: 'error',
-                    message: 'Unauthorized'
-                });
-            }
-            return res.redirect('/auth/login');
+        if (!req.session.userId) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Authentication required'
+            });
         }
 
         const user = await User.findById(req.session.userId);
         if (!user) {
-            req.session.destroy(() => {
-                if (req.xhr || req.headers.accept.includes('json')) {
-                    return res.status(401).json({
-                        status: 'error',
-                        message: 'User not found'
-                    });
-                }
-                res.redirect('/auth/login');
+            return res.status(401).json({
+                status: 'error',
+                message: 'User not found'
             });
-            return;
         }
 
         req.user = user;
         next();
     } catch (error) {
-        console.error('Auth middleware error:', error);
         res.status(500).json({
             status: 'error',
             message: 'Authentication error'
         });
     }
-}
+};
 
 function isAdmin(req, res, next) {
     if (req.user && req.user.isAdmin) {
