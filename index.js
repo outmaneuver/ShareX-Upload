@@ -36,8 +36,20 @@ app.use(session({
   }
 }));
 
+// Serve HTML pages
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.get('/admin_dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin_dashboard.html'));
+});
+
 // Routes
-app.use('/admin_dashboard', require('./admin/admin_dashboard'));
 app.use('/auth', require('./auth/auth'));
 app.use('/dashboard', require('./dashboard/dashboard'));
 app.use('/forgot_password', require('./forgot_password/forgot_password'));
