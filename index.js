@@ -76,6 +76,7 @@ app.use('/forgot_password', require('./forgot_password/forgot_password'));
 app.use('/register', registerRouter);
 app.use('/reset_password', require('./reset_password/reset_password'));
 app.use('/upload', require('./upload/upload'));
+app.use('/dashboard/generate-config', require('./dashboard/generate-config')); // Add this line
 
 // Root route redirect
 app.get('/', (req, res) => {
