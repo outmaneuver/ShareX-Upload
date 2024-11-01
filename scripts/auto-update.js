@@ -11,6 +11,9 @@ async function checkForUpdates() {
         // First backup .env file
         await execCommand('cp .env .env.backup', projectDir);
         
+        // Remove untracked files
+        await execCommand('git clean -f', projectDir);
+        
         // Reset any local changes
         await execCommand('git reset --hard HEAD', projectDir);
         
@@ -23,8 +26,7 @@ async function checkForUpdates() {
         // Install any new dependencies
         await execCommand('bun install', projectDir);
         
-        // Restart the application
-        await execCommand('pm2 restart all', projectDir);
+        console.log('Update completed successfully');
         
     } catch (error) {
         console.error('Update check failed:', error);
