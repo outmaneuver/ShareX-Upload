@@ -33,6 +33,18 @@ The program can be found over at https://getsharex.com/
 - **FileFormName**: The name of the form field for the file upload (e.g., sharex).
 - **URL**: The URL format for the uploaded file.
 
+### Session Management
+
+- **SESSION_SECRET**: Set the `SESSION_SECRET` environment variable to a strong, unique value. This is used for session management in `index.js`.
+
+To set the `SESSION_SECRET` environment variable, you can use the following command in your terminal:
+
+```sh
+export SESSION_SECRET=your_secret_key
+```
+
+Replace `your_secret_key` with a strong, unique value.
+
 ## Usage
 
 1. Open ShareX and go to `Destinations` > `Custom uploaders`.

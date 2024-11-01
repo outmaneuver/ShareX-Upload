@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import path from 'path';
-import session from 'express-session'; // Pb655
+import session from 'express-session';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,9 +14,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Middleware for serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Check if SESSION_SECRET is set
+if (!process.env.SESSION_SECRET) {
+  console.error('Error: SESSION_SECRET environment variable is not set.');
+  process.exit(1);
+}
+
 // Session management middleware for user authentication
 app.use(session({
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Set to true if using HTTPS
