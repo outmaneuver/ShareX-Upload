@@ -3,6 +3,8 @@ import multer from 'multer';
 import path from 'path';
 import { User, Upload } from '../config/config';
 
+const router = express.Router(); // P8689
+
 // Middleware to check if the user is authenticated
 function isAuthenticated(req, res, next) {
     if (req.user) {

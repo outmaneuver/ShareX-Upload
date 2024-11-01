@@ -4,6 +4,8 @@ import User from '../models/user';
 import Upload from '../models/upload';
 import SiteStatistic from '../models/siteStatistic';
 
+const router = express.Router();
+
 // Middleware to check if the user is authenticated
 function isAuthenticated(req, res, next) {
     if (req.user) {
