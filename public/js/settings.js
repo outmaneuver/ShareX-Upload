@@ -1,104 +1,86 @@
 // Load user data
 async function loadUserData() {
     try {
-        const response = await fetch('/dashboard/user-data');
-        const data = await response.json();
+        const response = await fetch('/settings/user');
+        if (!response.ok) throw new Error('Failed to fetch user data');
         
-        document.getElementById('userEmail').value = data.email;
-        document.getElementById('username').value = data.username;
-        document.getElementById('file_name_length').value = data.file_name_length;
-        document.getElementById('hide_user_info').checked = data.hide_user_info;
+        const { data } = await response.json();
+        
+        document.getElementById('email').value = data.email || '';
+        document.getElementById('username').value = data.username || '';
+        document.getElementById('file_name_length').value = data.file_name_length || 10;
+        document.getElementById('hide_user_info').checked = data.hide_user_info || false;
         
         // Set initials in profile circle
         const initials = document.querySelector('.initials');
-        initials.textContent = data.username.charAt(0).toUpperCase();
+        if (initials && data.username) {
+            initials.textContent = data.username.charAt(0).toUpperCase();
+        }
+
+        // Initialize theme
+        initializeThemeSwitch();
     } catch (error) {
         console.error('Error loading user data:', error);
         showToast('Error loading user data', 'error');
     }
 }
 
-// Handle password change
-document.getElementById('passwordForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (newPassword !== confirmPassword) {
-        showToast('New passwords do not match', 'error');
-        return;
-    }
-    
-    try {
-        const response = await fetch('/dashboard/change-password', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ currentPassword, newPassword })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            showToast('Password updated successfully');
-            e.target.reset();
-        } else {
-            showToast(data.message, 'error');
-        }
-    } catch (error) {
-        showToast('Error updating password', 'error');
-    }
-});
+// Theme switcher with smooth transition
+function initializeThemeSwitch() {
+    const themeSwitch = document.getElementById('checkbox');
+    if (!themeSwitch) return;
 
-// Handle upload settings
-document.getElementById('uploadSettingsForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    const currentTheme = localStorage.getItem('theme') || 'light-mode';
+    document.body.classList.add(currentTheme);
+    themeSwitch.checked = currentTheme === 'dark-mode';
     
-    const formData = new FormData(e.target);
-    const data = {
-        file_name_length: parseInt(formData.get('file_name_length')),
-        hide_user_info: formData.get('hide_user_info') === 'on'
-    };
-    
-    try {
-        const response = await fetch('/dashboard/settings', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        });
-        
-        if (response.ok) {
-            showToast('Settings updated successfully');
+    themeSwitch.addEventListener('change', (e) => {
+        document.body.classList.add('theme-transition');
+        if (e.target.checked) {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark-mode');
         } else {
-            showToast('Error updating settings', 'error');
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light-mode');
         }
-    } catch (error) {
-        showToast('Error updating settings', 'error');
-    }
-});
-
-// Toast notification system
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }, 100);
+        setTimeout(() => document.body.classList.remove('theme-transition'), 300);
+    });
 }
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
     loadUserData();
+    
+    // Handle settings form submission
+    const settingsForm = document.getElementById('uploadSettingsForm');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                file_name_length: parseInt(document.getElementById('file_name_length').value),
+                hide_user_info: document.getElementById('hide_user_info').checked
+            };
+            
+            try {
+                const response = await fetch('/settings/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showToast('Settings updated successfully');
+                } else {
+                    throw new Error('Failed to update settings');
+                }
+            } catch (error) {
+                showToast('Error updating settings', 'error');
+            }
+        });
+    }
 }); 
