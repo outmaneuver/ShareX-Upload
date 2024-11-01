@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
 const { connectDB } = require('./config/config');
+const registerRouter = require('./register');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -53,7 +54,7 @@ app.get('/admin_dashboard', (req, res) => {
 app.use('/auth', require('./auth/auth'));
 app.use('/dashboard', require('./dashboard/dashboard'));
 app.use('/forgot_password', require('./forgot_password/forgot_password'));
-app.use('/register', require('./register'));
+app.use('/register', registerRouter); // Update this line to use the router
 app.use('/reset_password', require('./reset_password/reset_password'));
 app.use('/upload', require('./upload/upload'));
 

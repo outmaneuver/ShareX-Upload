@@ -20,7 +20,7 @@ function isStrongPassword(password) {
 }
 
 // User registration route
-router.post('/register', async (req, res) => {
+router.post('/', async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
 
     if (!username || !email || !password || !confirmPassword) {
