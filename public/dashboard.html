@@ -1,97 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Dashboard - ShareX Upload</title>
     <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
-    <h2>User Dashboard</h2>
-    
-    <div class="statistics-box">
-        <h3>Statistics</h3>
-        <div id="statistics"></div>
-    </div>
-
-    <div class="uploads">
-        <h3>Your Uploads</h3>
-        <ul id="imagesList"></ul>
-    </div>
-
-    <div class="settings">
-        <h3>Settings</h3>
-        <form id="settingsForm">
-            <label for="file_name_length">File Name Length:</label>
-            <input type="number" id="file_name_length" name="file_name_length" min="1" max="50">
-            
-            <label for="upload_password">Upload Password:</label>
-            <input type="password" id="upload_password" name="upload_password">
-            
-            <label for="hide_user_info">Hide User Info:</label>
-            <input type="checkbox" id="hide_user_info" name="hide_user_info">
-            
-            <button type="submit">Save Settings</button>
-            
-            <div class="sharex-config">
-                <h4>ShareX Configuration</h4>
-                <button type="button" onclick="generateConfig()" class="btn btn-primary">
-                    Generate ShareX Config
-                </button>
+    <div class="container">
+        <nav class="navbar">
+            <h1>Dashboard</h1>
+            <div class="nav-links">
+                <a href="/auth/logout" class="btn btn-outline">Logout</a>
             </div>
-        </form>
+        </nav>
+
+        <div class="grid">
+            <div class="grid-col">
+                <div class="card">
+                    <h3>Statistics</h3>
+                    <div class="stats-grid" id="statistics">
+                        <div class="stat-box">
+                            <span class="stat-label">Total Uploads</span>
+                            <span class="stat-value" id="totalUploads">-</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Storage Used</span>
+                            <span class="stat-value" id="storageUsed">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Settings</h3>
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label for="file_name_length">File Name Length</label>
+                            <input type="number" id="file_name_length" name="file_name_length" min="3" max="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="upload_password">Upload Password</label>
+                            <input type="password" id="upload_password" name="upload_password">
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="hide_user_info" name="hide_user_info">
+                                Hide User Info
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </form>
+
+                    <div class="sharex-config">
+                        <h4>ShareX Configuration</h4>
+                        <button onclick="generateConfig()" class="btn btn-secondary">
+                            Generate Config File
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-col">
+                <div class="card">
+                    <h3>Recent Uploads</h3>
+                    <div class="uploads-list" id="uploads"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Fetch user images
-        fetch('/dashboard/images')
-            .then(response => response.json())
-            .then(images => {
-                const imagesList = document.getElementById('imagesList');
-                images.forEach(image => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        ${image.filename}
-                        <button onclick="deleteImage('${image._id}')">Delete</button>
-                    `;
-                    imagesList.appendChild(li);
-                });
-            });
-
-        // Fetch statistics
-        fetch('/dashboard/statistics')
-            .then(response => response.json())
-            .then(stats => {
-                const statisticsDiv = document.getElementById('statistics');
-                statisticsDiv.innerHTML = Object.entries(stats)
-                    .map(([key, value]) => `<p>${key}: ${value}</p>`)
-                    .join('');
-            });
-
-        // Handle settings form
-        document.getElementById('settingsForm').onsubmit = async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            await fetch('/dashboard/update_settings', {
-                method: 'POST',
-                body: JSON.stringify(Object.fromEntries(formData)),
-                headers: {'Content-Type': 'application/json'}
-            });
-            alert('Settings updated successfully');
-        };
-
-        function deleteImage(id) {
-            if (confirm('Are you sure you want to delete this image?')) {
-                fetch('/dashboard/delete_image', {
-                    method: 'POST',
-                    body: JSON.stringify({ imageId: id }),
-                    headers: {'Content-Type': 'application/json'}
-                })
-                .then(() => location.reload());
-            }
-        }
-        
-        function generateConfig() {
-            window.location.href = '/dashboard/generate-config';
-        }
-    </script>
+    <script src="/js/dashboard.js"></script>
 </body>
 </html>

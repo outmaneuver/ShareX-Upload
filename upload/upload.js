@@ -21,7 +21,6 @@ const storage = multer.diskStorage({
     },
     filename: async (req, file, cb) => {
         try {
-            // Get user from authorization header
             const authHeader = req.headers.authorization;
             const user = await User.findOne({ upload_password: authHeader });
             
@@ -29,11 +28,15 @@ const storage = multer.diskStorage({
                 return cb(new Error('Invalid upload password'));
             }
 
-            const fileNameLength = user.file_name_length || 10; // Default to 10 if not set
-            const randomString = crypto.randomBytes(Math.floor(fileNameLength/2)).toString('hex');
+            const length = user.file_name_length || 10;
+            // Generate alphanumeric string of exact length
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars[Math.floor(Math.random() * chars.length)];
+            }
             const ext = path.extname(file.originalname);
-            const filename = `${randomString}${ext}`;
-            cb(null, filename);
+            cb(null, `${result}${ext}`);
         } catch (error) {
             cb(error);
         }

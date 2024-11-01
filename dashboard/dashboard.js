@@ -47,6 +47,70 @@ router.get('/images', isAuthenticated, async (req, res) => {
     }
 });
 
+// Add password change route
+router.post('/change-password', isAuthenticated, async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    try {
+        const user = await User.findById(req.user._id);
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        
+        if (!isMatch) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'Current password is incorrect'
+            });
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+        
+        res.json({
+            status: 'success',
+            message: 'Password updated successfully'
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Error updating password'
+        });
+    }
+});
+
+// Add statistics route
+router.get('/statistics', isAuthenticated, async (req, res) => {
+    try {
+        const stats = await Upload.aggregate([
+            { $match: { userId: req.user._id } },
+            {
+                $group: {
+                    _id: null,
+                    totalUploads: { $sum: 1 },
+                    totalSize: { $sum: '$size' },
+                    lastUpload: { $max: '$createdAt' }
+                }
+            }
+        ]);
+
+        const hostStats = {
+            version: process.version,
+            platform: process.platform,
+            uptime: process.uptime()
+        };
+
+        res.json({
+            uploads: stats[0]?.totalUploads || 0,
+            storageUsed: stats[0]?.totalSize || 0,
+            lastUpload: stats[0]?.lastUpload || null,
+            hostInfo: hostStats
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Error fetching statistics'
+        });
+    }
+});
+
 // Rest of your routes...
 
 module.exports = router;

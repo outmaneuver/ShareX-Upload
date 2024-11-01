@@ -28,6 +28,13 @@ app.use('/uploads', (req, res, next) => {
     next();
 });
 
+// Serve uploaded files
+app.use('/uploads', (req, res, next) => {
+    // Disable redirect following
+    res.setHeader('Cache-Control', 'no-store');
+    express.static(uploadPath)(req, res, next);
+});
+
 // Session configuration
 if (!process.env.SESSION_SECRET) {
   console.error('Error: SESSION_SECRET environment variable is not set.');
