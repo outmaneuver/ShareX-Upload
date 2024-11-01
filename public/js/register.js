@@ -1,9 +1,9 @@
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
 
     try {
-        const response = await fetch('/auth/login', {
+        const response = await fetch('/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -18,6 +18,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             alert(data.message);
         }
     } catch (error) {
-        alert('An error occurred during login');
+        alert('An error occurred during registration');
     }
-});
+}); 

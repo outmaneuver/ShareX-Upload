@@ -40,9 +40,9 @@ form {
     max-width: 400px;
     margin: 20px auto;
     padding: 20px;
-    background-color: #fff;
+    background-color: var(--white);
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
 }
 
 label {
@@ -64,15 +64,15 @@ select {
 button {
     width: 100%;
     padding: 10px;
-    background-color: #007bff;
-    color: #fff;
+    background-color: var(--primary);
+    color: var(--white);
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-dark);
 }
 
 ul {
@@ -243,12 +243,57 @@ img {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
+    padding: 15px;
+    border-bottom: 1px solid var(--light);
+    transition: background-color 0.2s;
 }
 
-.upload-item:last-child {
-    border-bottom: none;
+.upload-item:hover {
+    background-color: var(--light);
+}
+
+.upload-info {
+    flex: 1;
+}
+
+.upload-filename {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.upload-meta {
+    display: flex;
+    gap: 12px;
+    color: var(--secondary);
+    font-size: 0.875rem;
+}
+
+.upload-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+    color: var(--white);
+}
+
+.btn-secondary:hover {
+    background-color: var(--dark);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+    color: var(--white);
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
 }
 
 .profile-container {
