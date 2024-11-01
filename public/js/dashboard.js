@@ -2,49 +2,78 @@
 async function loadStatistics() {
     try {
         const response = await fetch('/dashboard/statistics');
+        if (!response.ok) throw new Error('Failed to fetch statistics');
         const data = await response.json();
         
-        document.getElementById('totalUploads').textContent = data.uploads;
-        document.getElementById('storageUsed').textContent = formatBytes(data.storageUsed);
+        document.getElementById('totalUploads').textContent = data.uploads || '0';
+        document.getElementById('storageUsed').textContent = formatBytes(data.storageUsed || 0);
     } catch (error) {
         console.error('Error loading statistics:', error);
+        showToast('Failed to load statistics', 'error');
     }
 }
 
-// Load uploads
-async function loadUploads() {
+// Load uploads with pagination
+let currentPage = 1;
+const PAGE_SIZE = 10;
+
+async function loadUploads(page = 1) {
     try {
-        const response = await fetch('/dashboard/images');
+        const response = await fetch(`/dashboard/images?page=${page}&limit=${PAGE_SIZE}`);
+        if (!response.ok) throw new Error('Failed to fetch uploads');
         const data = await response.json();
         
         const uploadsContainer = document.getElementById('uploads');
-        uploadsContainer.innerHTML = data.data.images
-            .map(image => `
-                <div class="upload-item">
-                    <div class="upload-info">
-                        <div class="upload-filename">${image.filename}</div>
-                        <div class="upload-meta">
-                            <small>${formatDate(image.createdAt)}</small>
-                            <small>${formatBytes(image.size)}</small>
-                        </div>
+        if (page === 1) uploadsContainer.innerHTML = '';
+
+        data.data.images.forEach(image => {
+            const uploadItem = document.createElement('div');
+            uploadItem.className = 'upload-item';
+            uploadItem.innerHTML = `
+                <div class="upload-info">
+                    <div class="upload-filename">
+                        <i class="fas fa-file"></i> ${image.filename}
                     </div>
-                    <div class="upload-actions">
-                        <button onclick="copyToClipboard('${image.url}')" class="btn btn-secondary btn-sm">Copy URL</button>
-                        <button onclick="deleteImage('${image._id}')" class="btn btn-danger btn-sm">Delete</button>
+                    <div class="upload-meta">
+                        <span><i class="far fa-clock"></i> ${formatDate(image.createdAt)}</span>
+                        <span><i class="fas fa-weight"></i> ${formatBytes(image.size)}</span>
                     </div>
                 </div>
-            `)
-            .join('');
+                <div class="upload-actions">
+                    <button onclick="copyToClipboard('${image._id}')" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button onclick="deleteImage('${image._id}')" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            uploadsContainer.appendChild(uploadItem);
+        });
+
+        // Update load more button visibility
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = data.data.hasMore ? 'block' : 'none';
+        }
     } catch (error) {
         console.error('Error loading uploads:', error);
+        showToast('Failed to load uploads', 'error');
     }
 }
 
-// Delete image
+// Load more uploads
+function loadMore() {
+    currentPage++;
+    loadUploads(currentPage);
+}
+
+// Delete image with confirmation
 async function deleteImage(imageId) {
-    if (!confirm('Are you sure you want to delete this image?')) return;
-    
     try {
+        const confirmed = await showConfirmDialog('Are you sure you want to delete this image?');
+        if (!confirmed) return;
+        
         const response = await fetch(`/dashboard/images/${imageId}`, {
             method: 'DELETE',
             headers: {
@@ -55,7 +84,8 @@ async function deleteImage(imageId) {
         if (!response.ok) throw new Error('Failed to delete image');
         
         showToast('Image deleted successfully');
-        await loadUploads();
+        currentPage = 1;
+        await loadUploads(1);
         await loadStatistics();
     } catch (error) {
         console.error('Error deleting image:', error);
@@ -63,7 +93,25 @@ async function deleteImage(imageId) {
     }
 }
 
-// Copy URL to clipboard
+// Confirmation dialog
+function showConfirmDialog(message) {
+    return new Promise((resolve) => {
+        const dialog = document.createElement('div');
+        dialog.className = 'confirm-dialog';
+        dialog.innerHTML = `
+            <div class="confirm-content">
+                <p>${message}</p>
+                <div class="confirm-actions">
+                    <button class="btn btn-secondary" onclick="this.closest('.confirm-dialog').remove(); resolve(false);">Cancel</button>
+                    <button class="btn btn-danger" onclick="this.closest('.confirm-dialog').remove(); resolve(true);">Delete</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(dialog);
+    });
+}
+
+// Copy URL to clipboard with feedback
 async function copyToClipboard(imageId) {
     try {
         const url = `${window.location.origin}/i/${imageId}`;
@@ -84,85 +132,34 @@ function formatBytes(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// Format date
+// Format date with relative time
 function formatDate(date) {
-    return new Date(date).toLocaleDateString('en-US', {
+    const now = new Date();
+    const uploadDate = new Date(date);
+    const diff = now - uploadDate;
+    
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff/3600000)}h ago`;
+    if (diff < 604800000) return `${Math.floor(diff/86400000)}d ago`;
+    
+    return uploadDate.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        day: 'numeric'
     });
 }
 
-// Handle settings form
-async function saveSettings(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const settings = {
-        file_name_length: parseInt(formData.get('file_name_length')),
-        upload_password: formData.get('upload_password'),
-        hide_user_info: formData.get('hide_user_info') === 'on'
-    };
-
-    try {
-        const response = await fetch('/dashboard/settings', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(settings)
-        });
-
-        if (response.ok) {
-            alert('Settings saved successfully');
-        } else {
-            throw new Error('Failed to save settings');
-        }
-    } catch (error) {
-        console.error('Error saving settings:', error);
-        alert('Failed to save settings');
-    }
-}
-
-// Generate ShareX config
-function generateConfig() {
-    window.location.href = '/dashboard/generate-config';
-}
-
-// Profile menu toggle
-function initializeProfileMenu() {
-    const profileTrigger = document.getElementById('profileTrigger');
-    const profileDropdown = document.querySelector('.profile-dropdown');
-    const initials = document.querySelector('.initials');
-    
-    // Set user initials
-    const username = localStorage.getItem('username') || 'User';
-    initials.textContent = username.charAt(0).toUpperCase();
-    
-    profileTrigger.addEventListener('click', () => {
-        profileDropdown.classList.toggle('active');
-    });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!profileTrigger.contains(e.target)) {
-            profileDropdown.classList.remove('active');
-        }
-    });
-}
-
-// Theme switcher
+// Theme switcher with smooth transition
 function initializeThemeSwitch() {
     const themeSwitch = document.getElementById('checkbox');
-    const currentTheme = localStorage.getItem('theme');
+    const currentTheme = localStorage.getItem('theme') || 'light-mode';
     
-    if (currentTheme) {
-        document.body.classList.add(currentTheme);
-        themeSwitch.checked = currentTheme === 'dark-mode';
-    }
+    document.body.classList.add(currentTheme);
+    themeSwitch.checked = currentTheme === 'dark-mode';
     
     themeSwitch.addEventListener('change', (e) => {
+        document.body.classList.add('theme-transition');
         if (e.target.checked) {
             document.body.classList.remove('light-mode');
             document.body.classList.add('dark-mode');
@@ -172,35 +169,20 @@ function initializeThemeSwitch() {
             document.body.classList.add('light-mode');
             localStorage.setItem('theme', 'light-mode');
         }
+        setTimeout(() => document.body.classList.remove('theme-transition'), 300);
     });
-}
-
-// Toast notification system
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }, 100);
 }
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
-    initializeProfileMenu();
     initializeThemeSwitch();
     loadStatistics();
-    loadUploads();
+    loadUploads(1);
     
-    // Add settings form submit handler
-    const settingsForm = document.getElementById('settingsForm');
-    if (settingsForm) {
-        settingsForm.addEventListener('submit', saveSettings);
-    }
+    // Add infinite scroll
+    window.addEventListener('scroll', () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+            loadMore();
+        }
+    });
 });
