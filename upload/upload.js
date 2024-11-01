@@ -1,10 +1,17 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { User, Upload } = require('../config/config');
 const { isAuthenticated } = require('../middleware/authMiddleware');
 
 const router = express.Router();
+
+// Create uploads directory if it doesn't exist
+const uploadDir = 'uploads';
+if (!fs.existsSync(uploadDir)){
+    fs.mkdirSync(uploadDir);
+}
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
