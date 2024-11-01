@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import User from '../models/user';
+import { User } from '../config/config';
 import Upload from '../models/upload';
 import SiteStatistic from '../models/siteStatistic';
 
