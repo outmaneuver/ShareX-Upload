@@ -2,17 +2,9 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const { User, Upload } = require('../config/config');
+const { isAuthenticated } = require('../middleware/authMiddleware');
 
-const router = express.Router(); // P8689
-
-// Middleware to check if the user is authenticated
-function isAuthenticated(req, res, next) {
-    if (req.user) {
-        next();
-    } else {
-        res.status(401).send('Unauthorized');
-    }
-}
+const router = express.Router();
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -65,9 +57,8 @@ router.post('/upload', async (req, res, next) => {
     }
 }, upload.single('sharex'), async (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
         const newUpload = new Upload({
-            userId: user._id,
+            userId: req.user._id,
             filename: req.file.filename,
             originalname: req.file.originalname,
             mimetype: req.file.mimetype,
