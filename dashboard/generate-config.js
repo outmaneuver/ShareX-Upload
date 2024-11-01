@@ -22,14 +22,13 @@ router.get('/', isAuthenticated, async (req, res) => {
             Name: `${req.user.username}'s Config`,
             DestinationType: "ImageUploader, TextUploader, FileUploader",
             RequestMethod: "POST",
-            RequestURL: `${domain}/upload/upload`,
+            RequestURL: `${domain}/upload`,  // Changed from /upload/upload
             Headers: {
                 "Authorization": req.user.upload_password
             },
             Body: "MultipartFormData",
             FileFormName: "sharex",
-            URL: `${domain}$json:url$`,
-            ErrorMessage: "$json:error$"
+            URL: "$json:url$"  // Changed to use direct URL format
         };
 
         res.setHeader('Content-Disposition', `attachment; filename=${req.user.username}-sharex-config.sxcu`);

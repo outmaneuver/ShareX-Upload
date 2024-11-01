@@ -75,8 +75,8 @@ app.use('/admin_dashboard', require('./admin/admin_dashboard'));
 app.use('/forgot_password', require('./forgot_password/forgot_password'));
 app.use('/register', registerRouter);
 app.use('/reset_password', require('./reset_password/reset_password'));
-app.use('/upload', require('./upload/upload'));
-app.use('/dashboard/generate-config', require('./dashboard/generate-config')); // Add this line
+app.use('/upload', require('./upload/upload'));  // Changed to mount at /upload
+app.use('/dashboard/generate-config', require('./dashboard/generate-config'));
 
 // Root route redirect
 app.get('/', (req, res) => {

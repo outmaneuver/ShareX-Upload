@@ -19,8 +19,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Update the upload route to check authentication
-router.post('/upload', async (req, res, next) => {
+// Update the upload route to handle files
+router.post('/', async (req, res, next) => {  // Changed from /upload to /
     try {
         const authHeader = req.headers.authorization;
         
