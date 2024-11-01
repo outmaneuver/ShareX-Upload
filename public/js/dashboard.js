@@ -46,29 +46,32 @@ async function deleteImage(imageId) {
     
     try {
         const response = await fetch(`/dashboard/images/${imageId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
         
-        if (response.ok) {
-            loadUploads(); // Refresh the uploads list
-            loadStatistics(); // Refresh statistics
-        } else {
-            throw new Error('Failed to delete image');
-        }
+        if (!response.ok) throw new Error('Failed to delete image');
+        
+        showToast('Image deleted successfully');
+        await loadUploads();
+        await loadStatistics();
     } catch (error) {
         console.error('Error deleting image:', error);
-        alert('Failed to delete image');
+        showToast('Failed to delete image', 'error');
     }
 }
 
 // Copy URL to clipboard
-async function copyToClipboard(text) {
+async function copyToClipboard(imageId) {
     try {
-        await navigator.clipboard.writeText(text);
-        alert('URL copied to clipboard!');
+        const url = `${window.location.origin}/i/${imageId}`;
+        await navigator.clipboard.writeText(url);
+        showToast('URL copied to clipboard!');
     } catch (error) {
         console.error('Error copying to clipboard:', error);
-        alert('Failed to copy URL');
+        showToast('Failed to copy URL', 'error');
     }
 }
 
@@ -127,8 +130,71 @@ function generateConfig() {
     window.location.href = '/dashboard/generate-config';
 }
 
+// Profile menu toggle
+function initializeProfileMenu() {
+    const profileTrigger = document.getElementById('profileTrigger');
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    const initials = document.querySelector('.initials');
+    
+    // Set user initials
+    const username = localStorage.getItem('username') || 'User';
+    initials.textContent = username.charAt(0).toUpperCase();
+    
+    profileTrigger.addEventListener('click', () => {
+        profileDropdown.classList.toggle('active');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!profileTrigger.contains(e.target)) {
+            profileDropdown.classList.remove('active');
+        }
+    });
+}
+
+// Theme switcher
+function initializeThemeSwitch() {
+    const themeSwitch = document.getElementById('checkbox');
+    const currentTheme = localStorage.getItem('theme');
+    
+    if (currentTheme) {
+        document.body.classList.add(currentTheme);
+        themeSwitch.checked = currentTheme === 'dark-mode';
+    }
+    
+    themeSwitch.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light-mode');
+        }
+    });
+}
+
+// Toast notification system
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }, 100);
+}
+
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
+    initializeProfileMenu();
+    initializeThemeSwitch();
     loadStatistics();
     loadUploads();
     

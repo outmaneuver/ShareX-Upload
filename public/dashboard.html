@@ -3,13 +3,29 @@
 <head>
     <title>Dashboard - ShareX Upload</title>
     <link rel="stylesheet" href="/styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body>
+<body class="light-mode">
     <div class="container">
         <nav class="navbar">
             <h1>Dashboard</h1>
-            <div class="nav-links">
-                <a href="/auth/logout" class="btn btn-outline">Logout</a>
+            <div class="nav-right">
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="checkbox">
+                        <input type="checkbox" id="checkbox" />
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+                <div class="profile-menu">
+                    <div class="profile-circle" id="profileTrigger">
+                        <span class="initials"></span>
+                    </div>
+                    <div class="profile-dropdown">
+                        <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                        <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
+                        <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
             </div>
         </nav>
 
