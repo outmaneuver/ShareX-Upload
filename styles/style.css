@@ -250,3 +250,12 @@ img {
 .upload-item:last-child {
     border-bottom: none;
 }
+
+.profile-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--white);
+    border-radius: 5px;
+    box-shadow: var(--shadow);
+}

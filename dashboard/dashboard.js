@@ -126,6 +126,27 @@ router.post('/settings', isAuthenticated, async (req, res) => {
     }
 });
 
+// Add route to delete an image
+router.delete('/images/:id', isAuthenticated, async (req, res) => {
+    try {
+        await Upload.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Image deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting image', error });
+    }
+});
+
+// Add route to update user profile
+router.post('/profile', isAuthenticated, async (req, res) => {
+    try {
+        const { email } = req.body;
+        await User.findByIdAndUpdate(req.user._id, { email });
+        res.status(200).json({ message: 'Profile updated successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating profile', error });
+    }
+});
+
 // Rest of your routes...
 
 module.exports = router;
