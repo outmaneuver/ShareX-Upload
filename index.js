@@ -5,6 +5,7 @@ const MongoStore = require('connect-mongo');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { connectDB } = require('./config/config');
+const { isAuthenticated } = require('./middleware/authMiddleware');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,7 +17,6 @@ connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
-app.use('/styles', express.static(path.join(__dirname, 'styles')));
 
 // Session configuration
 app.use(session({
@@ -32,23 +32,16 @@ app.use(session({
     }
 }));
 
-// Routes
-app.use('/auth', require('./routes/auth'));
-app.use('/dashboard', require('./routes/dashboard'));
-app.use('/register', require('./routes/register'));
-app.use('/i', require('./routes/images'));
-app.use('/settings', require('./routes/settings'));
-
-// Serve static pages
+// Public routes
 app.get('/', (req, res) => {
     if (req.session.userId) {
         res.redirect('/dashboard');
     } else {
-        res.redirect('/login');
+        res.redirect('/auth/login');
     }
 });
 
-app.get('/login', (req, res) => {
+app.get('/auth/login', (req, res) => {
     if (req.session.userId) {
         res.redirect('/dashboard');
     } else {
@@ -64,29 +57,25 @@ app.get('/register', (req, res) => {
     }
 });
 
-app.get('/dashboard', (req, res) => {
-    if (!req.session.userId) {
-        res.redirect('/login');
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-    }
+// Protected routes
+app.get('/dashboard', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-app.get('/profile', (req, res) => {
-    if (!req.session.userId) {
-        res.redirect('/login');
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'profile.html'));
-    }
+app.get('/settings', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'settings.html'));
 });
 
-app.get('/settings', (req, res) => {
-    if (!req.session.userId) {
-        res.redirect('/login');
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'settings.html'));
-    }
+app.get('/profile', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
+
+// API routes
+app.use('/auth', require('./routes/auth'));
+app.use('/dashboard', isAuthenticated, require('./routes/dashboard'));
+app.use('/settings', isAuthenticated, require('./routes/settings'));
+app.use('/i', require('./routes/images'));
+app.use('/register', require('./routes/register'));
 
 // Error handling
 app.use((err, req, res, next) => {

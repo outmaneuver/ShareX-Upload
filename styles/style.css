@@ -10,6 +10,12 @@
     --dark: #343A40;
     --white: #FFFFFF;
     --shadow: 0 2px 4px rgba(0,0,0,.1);
+    --bg-color: #f5f5f5;
+    --text-primary: #333;
+    --text-secondary: #666;
+    --card-bg: #fff;
+    --stat-box-bg: #f0f0f0;
+    --upload-item-bg: #f8f8f8;
 }
 
 /* Base Styles */
@@ -22,13 +28,19 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     line-height: 1.6;
-    color: var(--dark);
-    background: var(--light);
+    color: var(--text-primary);
+    background-color: var(--bg-color);
 }
 
 .dark-mode {
-    background-color: #333;
-    color: #f4f4f4;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    --bg-color: #1a1a1a;
+    --text-primary: #fff;
+    --text-secondary: #aaa;
+    --card-bg: #2d2d2d;
+    --stat-box-bg: #333;
+    --upload-item-bg: #383838;
 }
 
 h2 {
@@ -110,11 +122,10 @@ img {
 }
 
 .card {
-    background: var(--white);
+    background: var(--card-bg);
     border-radius: 8px;
     padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn {
@@ -208,13 +219,13 @@ img {
 /* Stats Grid */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     margin-top: 15px;
 }
 
 .stat-box {
-    background: var(--light);
+    background: var(--stat-box-bg);
     padding: 15px;
     border-radius: 6px;
     text-align: center;
@@ -222,34 +233,31 @@ img {
 
 .stat-label {
     display: block;
-    font-size: 0.875rem;
-    color: var(--secondary);
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
 }
 
 .stat-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--primary);
-    margin-top: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--text-primary);
 }
 
 /* Uploads List */
 .uploads-list {
-    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .upload-item {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 15px;
-    border-bottom: 1px solid var(--light);
-    transition: background-color 0.2s;
-}
-
-.upload-item:hover {
-    background-color: var(--light);
+    align-items: center;
+    padding: 10px;
+    background: var(--upload-item-bg);
+    border-radius: 6px;
 }
 
 .upload-info {
@@ -262,10 +270,8 @@ img {
 }
 
 .upload-meta {
-    display: flex;
-    gap: 12px;
-    color: var(--secondary);
-    font-size: 0.875rem;
+    font-size: 0.8em;
+    color: var(--text-secondary);
 }
 
 .upload-actions {
@@ -319,25 +325,28 @@ img {
 .profile-circle {
     width: 40px;
     height: 40px;
+    background: var(--primary-color);
     border-radius: 50%;
-    background: var(--primary);
-    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
 }
 
+.profile-circle .initials {
+    color: white;
+    font-weight: bold;
+}
+
 .profile-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
-    background: var(--white);
-    border-radius: 5px;
-    box-shadow: var(--shadow);
-    min-width: 200px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: none;
-    z-index: 1000;
+    min-width: 150px;
 }
 
 .profile-dropdown.active {
@@ -345,39 +354,14 @@ img {
 }
 
 .profile-dropdown a {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    color: var(--dark);
+    display: block;
+    padding: 10px 15px;
+    color: var(--text-primary);
     text-decoration: none;
 }
 
 .profile-dropdown a:hover {
-    background: var(--light);
-}
-
-/* Dark mode styles */
-.dark-mode {
-    background-color: #1a1a1a;
-    color: #ffffff;
-}
-
-.dark-mode .card {
-    background-color: #2d2d2d;
-    border-color: #404040;
-}
-
-.dark-mode .profile-dropdown {
-    background-color: #2d2d2d;
-}
-
-.dark-mode .profile-dropdown a {
-    color: #ffffff;
-}
-
-.dark-mode .profile-dropdown a:hover {
-    background-color: #404040;
+    background: var(--stat-box-bg);
 }
 
 /* Theme switch */
@@ -454,4 +438,85 @@ input:checked + .slider:before {
 
 .back-link:hover {
     text-decoration: underline;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+.grid-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stat-box {
+    background: var(--stat-box-bg);
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.uploads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.upload-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: var(--upload-item-bg);
+    border-radius: 6px;
+}
+
+.upload-info {
+    flex: 1;
+}
+
+.upload-filename {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.upload-meta {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+}
+
+.upload-actions {
+    display: flex;
+    gap: 8px;
 }

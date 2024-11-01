@@ -2,15 +2,6 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../config/config');
-const path = require('path');
-
-router.get('/login', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, '../public/login.html'));
-    }
-});
 
 router.post('/login', async (req, res) => {
     try {
@@ -34,6 +25,13 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({
                 status: 'error',
                 message: 'Invalid username/email or password'
+            });
+        }
+
+        if (user.isSuspended) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Your account has been suspended'
             });
         }
 
@@ -67,8 +65,12 @@ router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             console.error('Logout error:', err);
+            return res.status(500).json({
+                status: 'error',
+                message: 'Error during logout'
+            });
         }
-        res.redirect('/login');
+        res.redirect('/auth/login');
     });
 });
 
