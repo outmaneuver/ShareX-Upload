@@ -36,7 +36,6 @@ app.use('/auth', require('./auth/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/register', require('./routes/register'));
 app.use('/i', require('./routes/images'));
-app.use('/admin', require('./routes/admin')); // If you have admin routes
 
 // Serve static pages
 app.get('/', (req, res) => {

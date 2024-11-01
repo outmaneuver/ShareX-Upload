@@ -3,8 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User, Upload, SiteStatistic } = require('../config/config');
 const { isAuthenticated } = require('../middleware/authMiddleware');
-const path = require('path');
 
-// Your existing routes...
+// Your existing dashboard routes...
 
 module.exports = router; 
