@@ -13,32 +13,22 @@ const isAuthenticated = async (req, res, next) => {
         }
 
         const user = await User.findById(req.session.userId);
-        if (!user) {
+        if (!user || user.isSuspended) {
             req.session.destroy();
             if (req.xhr || req.path.startsWith('/api/')) {
                 return res.status(401).json({
                     status: 'error',
-                    message: 'User not found'
+                    message: 'Invalid or suspended account'
                 });
             }
             return res.redirect('/auth/login');
-        }
-
-        if (user.isSuspended) {
-            req.session.destroy();
-            if (req.xhr || req.path.startsWith('/api/')) {
-                return res.status(403).json({
-                    status: 'error',
-                    message: 'Account suspended'
-                });
-            }
-            return res.redirect('/auth/login?error=account_suspended');
         }
 
         req.user = user;
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);
+        req.session.destroy();
         if (req.xhr || req.path.startsWith('/api/')) {
             return res.status(500).json({
                 status: 'error',
@@ -49,21 +39,4 @@ const isAuthenticated = async (req, res, next) => {
     }
 };
 
-const isAdmin = (req, res, next) => {
-    if (req.user && req.user.isAdmin) {
-        next();
-    } else {
-        if (req.xhr || req.path.startsWith('/api/')) {
-            return res.status(403).json({
-                status: 'error',
-                message: 'Admin access required'
-            });
-        }
-        res.redirect('/auth/login');
-    }
-};
-
-module.exports = {
-    isAuthenticated,
-    isAdmin
-};
+module.exports = { isAuthenticated };

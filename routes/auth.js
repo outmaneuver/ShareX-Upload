@@ -7,13 +7,6 @@ router.post('/login', async (req, res) => {
     try {
         const { usernameOrEmail, password } = req.body;
 
-        if (!usernameOrEmail || !password) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'All fields are required'
-            });
-        }
-
         const user = await User.findOne({
             $or: [
                 { username: usernameOrEmail },
@@ -24,22 +17,22 @@ router.post('/login', async (req, res) => {
         if (!user) {
             return res.status(401).json({
                 status: 'error',
-                message: 'Invalid username/email or password'
+                message: 'Invalid credentials'
             });
         }
 
         if (user.isSuspended) {
             return res.status(403).json({
                 status: 'error',
-                message: 'Your account has been suspended'
+                message: 'Account is suspended'
             });
         }
 
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
             return res.status(401).json({
                 status: 'error',
-                message: 'Invalid username/email or password'
+                message: 'Invalid credentials'
             });
         }
 
@@ -51,7 +44,6 @@ router.post('/login', async (req, res) => {
             message: 'Login successful',
             redirect: '/dashboard'
         });
-
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({
@@ -61,16 +53,19 @@ router.post('/login', async (req, res) => {
     }
 });
 
-router.get('/logout', (req, res) => {
+router.post('/logout', (req, res) => {
     req.session.destroy((err) => {
         if (err) {
-            console.error('Logout error:', err);
             return res.status(500).json({
                 status: 'error',
-                message: 'Error during logout'
+                message: 'Error logging out'
             });
         }
-        res.redirect('/auth/login');
+        res.json({
+            status: 'success',
+            message: 'Logged out successfully',
+            redirect: '/auth/login'
+        });
     });
 });
 
