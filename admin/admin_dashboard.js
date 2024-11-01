@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { User, Announcement, SiteStatistic } = require('../config/config');
+const path = require('path');
 
 const router = express.Router();
 
@@ -144,6 +145,13 @@ router.get('/users', isAdmin, async (req, res) => {
             message: 'Error fetching users'
         });
     }
+});
+
+router.get('/', isAdmin, (req, res) => {
+    if (!req.session.userId || !req.user.isAdmin) {
+        return res.redirect('/auth/login');
+    }
+    res.sendFile(path.join(__dirname, '../public/admin_dashboard.html'));
 });
 
 module.exports = router;

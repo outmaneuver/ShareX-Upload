@@ -23,5 +23,34 @@
         
         <p><a href="/auth/login">Already have an account? Login</a></p>
     </form>
+    <script>
+    document.querySelector('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        try {
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: document.getElementById('username').value,
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
+                    confirmPassword: document.getElementById('confirmPassword').value
+                })
+            });
+    
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                const data = await response.json();
+                alert(data.message);
+            }
+        } catch (error) {
+            alert('An error occurred during registration');
+        }
+    });
+    </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { User, Upload, SiteStatistic } = require('../config/config');
+const path = require('path');
 
 const router = express.Router();
 
@@ -100,6 +101,14 @@ router.post('/update_settings', isAuthenticated, async (req, res) => {
     } catch (error) {
         res.status(500).send('Error updating settings');
     }
+});
+
+// Route to serve the dashboard
+router.get('/', isAuthenticated, (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/auth/login');
+    }
+    res.sendFile(path.join(__dirname, '../public/dashboard.html'));
 });
 
 module.exports = router;

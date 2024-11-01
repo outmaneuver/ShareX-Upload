@@ -60,9 +60,12 @@ router.post('/', async (req, res) => {
 
         await newUser.save();
 
-        return res.status(201).json({ message: 'Registration successful. You can now log in.' });
+        // Set session and redirect
+        req.session.userId = newUser._id;
+        res.redirect('/dashboard');
+
     } catch (error) {
-        return res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({ message: 'Server error', error });
     }
 });
 

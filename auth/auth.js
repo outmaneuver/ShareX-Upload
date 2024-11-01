@@ -43,7 +43,7 @@ router.post('/login', async (req, res) => {
             ]
         });
 
-        if (!user) {
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({
                 status: 'error', 
                 message: 'Invalid credentials'
@@ -57,22 +57,8 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        const isValidPassword = await bcrypt.compare(password, user.password);
-        if (!isValidPassword) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'Invalid credentials'
-            });
-        }
-
         req.session.userId = user._id;
-        const redirectUrl = user.isAdmin ? '/admin_dashboard' : '/dashboard';
-
-        res.status(200).json({
-            status: 'success',
-            message: 'Login successful',
-            redirectUrl
-        });
+        res.redirect(user.isAdmin ? '/admin_dashboard' : '/dashboard');
 
     } catch (error) {
         res.status(500).json({
