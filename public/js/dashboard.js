@@ -240,3 +240,26 @@ function showToast(message, type = 'success') {
         }, 3000);
     }, 100);
 }
+
+// Add this function
+async function generateConfig() {
+    try {
+        const response = await fetch('/dashboard/generate-config');
+        if (!response.ok) throw new Error('Failed to generate config');
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sharex-config.sxcu';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+        
+        showToast('Config file generated successfully');
+    } catch (error) {
+        console.error('Error generating config:', error);
+        showToast('Failed to generate config file', 'error');
+    }
+}

@@ -725,3 +725,25 @@ input:checked + .slider:before {
     padding-top: 15px;
     border-top: 1px solid var(--border-color);
 }
+
+/* Add these styles */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    background: var(--stat-box-bg);
+}
+
+.back-link:hover {
+    background: var(--border-color);
+    color: var(--text-primary);
+}
+
+.back-link i {
+    font-size: 14px;
+}
