@@ -41,6 +41,11 @@ app.use('/register', require('./register'));
 app.use('/reset_password', require('./reset_password/reset_password'));
 app.use('/upload', require('./upload/upload'));
 
+// Add this after your other routes
+app.get('/', (req, res) => {
+    res.redirect('/auth/login'); // Redirect to login page
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
