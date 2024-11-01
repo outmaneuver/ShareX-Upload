@@ -27,7 +27,7 @@ router.get('/', isAuthenticated, async (req, res) => {
                 "Authorization": req.user.upload_password
             },
             Body: "MultipartFormData",
-            FileFormName: "sharex"
+            FileFormName: "image" // Change this from "sharex" to "image"
         };
 
         res.setHeader('Content-Disposition', `attachment; filename=${req.user.username}-sharex-config.sxcu`);

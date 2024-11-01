@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Update the upload route to handle files
-router.post('/', async (req, res, next) => {
+router.post('/', upload.single('image'), async (req, res, next) => {
     try {
         // Check for authorization header
         const authHeader = req.headers.authorization;
@@ -40,14 +40,14 @@ router.post('/', async (req, res, next) => {
             });
         }
 
-        if (!req.files || !req.files.image) {
+        if (!req.file) {
             return res.status(400).json({
                 status: 'error',
                 message: 'Image file is required'
             });
         }
 
-        const file = req.files.image;
+        const file = req.file;
         const mimetype = file.mimetype;
         const size = file.size;
         const filename = file.filename;
