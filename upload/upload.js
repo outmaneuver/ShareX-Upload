@@ -27,8 +27,43 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Route to handle file uploads
-router.post('/upload', isAuthenticated, upload.single('sharex'), async (req, res) => {
+// Update the upload route to check authentication
+router.post('/upload', async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+        
+        if (!authHeader) {
+            return res.status(401).json({
+                status: 'error',
+                error: 'No authentication provided'
+            });
+        }
+
+        const user = await User.findOne({ upload_password: authHeader });
+        
+        if (!user) {
+            return res.status(401).json({
+                status: 'error',
+                error: 'Invalid authentication'
+            });
+        }
+
+        if (user.isSuspended) {
+            return res.status(403).json({
+                status: 'error',
+                error: 'Account suspended'
+            });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            error: 'Server error'
+        });
+    }
+}, upload.single('sharex'), async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         const newUpload = new Upload({

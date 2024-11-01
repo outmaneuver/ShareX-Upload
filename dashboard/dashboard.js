@@ -103,6 +103,38 @@ router.post('/update_settings', isAuthenticated, async (req, res) => {
     }
 });
 
+// Route to generate ShareX config
+router.get('/generate-config', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const domain = req.protocol + '://' + req.get('host');
+        
+        const config = {
+            Version: "13.0.1",
+            Name: `${user.username}'s Upload Config`,
+            DestinationType: "ImageUploader, TextUploader, FileUploader",
+            RequestMethod: "POST",
+            RequestURL: `${domain}/upload/upload`,
+            Headers: {
+                "Authorization": user.upload_password
+            },
+            Body: "MultipartFormData",
+            FileFormName: "sharex",
+            URL: `${domain}/$json:url$`,
+            ErrorMessage: "$json:error$"
+        };
+        
+        res.setHeader('Content-Disposition', 'attachment; filename=sharex-config.sxcu');
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(config, null, 2));
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Error generating config'
+        });
+    }
+});
+
 // Route to serve the dashboard
 router.get('/', isAuthenticated, (req, res) => {
     if (!req.session.userId) {

@@ -118,6 +118,16 @@ img {
 .btn-primary {
   background: var(--primary-color);
   color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: #357abd;
 }
 
 .btn-danger {
@@ -151,4 +161,14 @@ img {
 .alert-error {
   background: var(--error-color);
   color: white;
+}
+
+.sharex-config {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.sharex-config h4 {
+    margin-bottom: 15px;
 }

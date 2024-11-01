@@ -30,6 +30,13 @@
             <input type="checkbox" id="hide_user_info" name="hide_user_info">
             
             <button type="submit">Save Settings</button>
+            
+            <div class="sharex-config">
+                <h4>ShareX Configuration</h4>
+                <button type="button" onclick="generateConfig()" class="btn btn-primary">
+                    Generate ShareX Config
+                </button>
+            </div>
         </form>
     </div>
 
@@ -80,6 +87,10 @@
                 })
                 .then(() => location.reload());
             }
+        }
+        
+        function generateConfig() {
+            window.location.href = '/dashboard/generate-config';
         }
     </script>
 </body>
