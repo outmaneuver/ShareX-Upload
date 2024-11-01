@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { connectDB } = require('./config/config');
 const { isAuthenticated } = require('./middleware/authMiddleware');
+import dashboardRouter from './dashboard/dashboard.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -73,7 +74,7 @@ app.get('/profile', isAuthenticated, (req, res) => {
 
 // API routes
 app.use('/auth', require('./routes/auth'));
-app.use('/dashboard', isAuthenticated, require('./routes/dashboard'));
+app.use('/dashboard', dashboardRouter);
 app.use('/settings', isAuthenticated, require('./routes/settings'));
 app.use('/i', require('./routes/images'));
 app.use('/register', require('./routes/register'));
