@@ -50,14 +50,10 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        if (user.isSuspended) {
-            return res.status(403).json({
-                status: 'error',
-                message: 'Account suspended. Please contact support.'
-            });
-        }
-
+        // Set session
         req.session.userId = user._id;
+        await req.session.save();
+
         res.redirect(user.isAdmin ? '/admin_dashboard' : '/dashboard');
 
     } catch (error) {

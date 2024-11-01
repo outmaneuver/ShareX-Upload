@@ -1,19 +1,30 @@
-import User from '../models/User';
+const User = require('../config/config').User;
 
-// Middleware to check if the user is authenticated
-export function isAuthenticated(req, res, next) {
-    if (req.session && req.session.userId) {
-        User.findById(req.session.userId, (err, user) => {
-            if (user) {
-                req.user = user;
-                delete req.user.password; // delete the password from the session
-                req.session.user = user;  // refresh the session value
-                res.locals.user = user;
-            }
-            next();
+// Update isAuthenticated middleware
+async function isAuthenticated(req, res, next) {
+    try {
+        if (!req.session || !req.session.userId) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Unauthorized'
+            });
+        }
+
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Authentication error'
         });
-    } else {
-        res.status(401).send('Unauthorized');
     }
 }
 

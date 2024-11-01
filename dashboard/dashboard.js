@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { User, Upload, SiteStatistic } = require('../config/config');
 const path = require('path');
+const { isAuthenticated } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -107,6 +108,19 @@ router.post('/update_settings', isAuthenticated, async (req, res) => {
 router.get('/generate-config', isAuthenticated, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        // Generate a random upload password if none exists
+        if (!user.upload_password) {
+            user.upload_password = Math.random().toString(36).substring(2, 15);
+            await user.save();
+        }
+
         const domain = req.protocol + '://' + req.get('host');
         
         const config = {

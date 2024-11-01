@@ -29,13 +29,31 @@ if (!process.env.SESSION_SECRET) {
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
+  resave: true,
   saveUninitialized: true,
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
+
+// Add this after session middleware
+app.use((req, res, next) => {
+    if (req.session && req.session.userId) {
+        User.findById(req.session.userId)
+            .then(user => {
+                if (user) {
+                    req.user = user;
+                    next();
+                } else {
+                    next();
+                }
+            })
+            .catch(next);
+    } else {
+        next();
+    }
+});
 
 // Serve HTML pages
 app.get('/register', (req, res) => {
