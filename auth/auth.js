@@ -1,22 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const { User } = require('../config/config');
-
 const router = express.Router();
 
 // Validate email format
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-}
-
-// Validate password format
-function isStrongPassword(password) {
-    const containsLetter = /[a-zA-Z]/.test(password);
-    const containsDigit = /\d/.test(password);
-    const containsSpecial = /[^a-zA-Z\d]/.test(password);
-    const isLongEnough = password.length >= 8;
-    return containsLetter && containsDigit && containsSpecial && isLongEnough;
 }
 
 // GET route for login page
@@ -53,14 +43,11 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Set session
         req.session.userId = user._id;
         req.session.isAuthenticated = true;
         
-        // Wait for session to be saved
         await new Promise((resolve) => req.session.save(resolve));
 
-        // Send response based on user role
         res.json({
             status: 'success',
             redirect: user.isAdmin ? '/admin_dashboard' : '/dashboard'
@@ -75,24 +62,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Session management middleware
-router.use((req, res, next) => {
-    if (req.session && req.session.userId) {
-        User.findById(req.session.userId, (err, user) => {
-            if (user) {
-                req.user = user;
-                delete req.user.password; // delete the password from the session
-                req.session.user = user;  // refresh the session value
-                res.locals.user = user;
-            }
-            next();
-        });
-    } else {
-        next();
-    }
-});
-
-// Add logout route
 router.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/auth/login');
@@ -100,31 +69,3 @@ router.get('/logout', (req, res) => {
 });
 
 module.exports = router;
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    try {
-        const response = await fetch('/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                usernameOrEmail: document.getElementById('usernameOrEmail').value,
-                password: document.getElementById('password').value
-            })
-        });
-
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            window.location.href = data.redirect;
-        } else {
-            alert(data.message || 'Login failed');
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        alert('An error occurred during login');
-    }
-});
