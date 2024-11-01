@@ -3,12 +3,23 @@ async function loadStatistics() {
     try {
         const response = await fetch('/dashboard/statistics');
         if (!response.ok) throw new Error('Failed to fetch statistics');
+        
         const data = await response.json();
         
+        // Always show at least 0
         document.getElementById('totalUploads').textContent = data.uploads || '0';
         document.getElementById('storageUsed').textContent = formatBytes(data.storageUsed || 0);
+        
+        // Update the UI to show the statistics are loaded
+        const statsContainer = document.getElementById('statistics');
+        if (statsContainer) {
+            statsContainer.classList.remove('loading');
+        }
     } catch (error) {
         console.error('Error loading statistics:', error);
+        // Show error state but keep showing 0s
+        document.getElementById('totalUploads').textContent = '0';
+        document.getElementById('storageUsed').textContent = '0 Bytes';
         showToast('Failed to load statistics', 'error');
     }
 }
@@ -175,9 +186,13 @@ function initializeThemeSwitch() {
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
-    initializeThemeSwitch();
+    const statsContainer = document.getElementById('statistics');
+    if (statsContainer) {
+        statsContainer.classList.add('loading');
+    }
     loadStatistics();
     loadUploads(1);
+    initializeThemeSwitch();
     
     // Add infinite scroll
     window.addEventListener('scroll', () => {
@@ -186,3 +201,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Add this function to handle logout
+async function logout(e) {
+    e.preventDefault();
+    try {
+        const response = await fetch('/auth/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            window.location.href = data.redirect || '/auth/login';
+        } else {
+            showToast('Logout failed', 'error');
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        showToast('Error during logout', 'error');
+    }
+}
+
+// Add this function for toast notifications if not already present
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }, 100);
+}

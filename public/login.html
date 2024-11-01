@@ -4,11 +4,19 @@
     <title>Login - ShareX Upload</title>
     <link rel="stylesheet" href="/styles/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="/js/theme.js" defer></script>
 </head>
 <body>
     <div class="container">
         <div class="auth-form">
             <h2>Login to ShareX Upload</h2>
+            <div class="theme-switch-wrapper">
+                <label class="theme-switch" for="checkbox">
+                    <input type="checkbox" id="checkbox" />
+                    <div class="slider round"></div>
+                </label>
+                <span class="theme-label">Theme</span>
+            </div>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="usernameOrEmail">Username or Email</label>
