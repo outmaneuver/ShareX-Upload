@@ -5,6 +5,8 @@ import User from '../models/User';
 import PasswordReset from '../models/PasswordReset';
 import SiteStatistic from '../models/SiteStatistic';
 
+const router = express.Router();
+
 // Validate email format
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

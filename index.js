@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import path from 'path';
+import session from 'express-session'; // Pb655
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -12,6 +13,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Middleware for serving static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Session management middleware for user authentication
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false } // Set to true if using HTTPS
+}));
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/sharex', {

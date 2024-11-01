@@ -2,6 +2,8 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import User from '../models/User';
 
+const router = express.Router(); // P71c3
+
 // Validate email format
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

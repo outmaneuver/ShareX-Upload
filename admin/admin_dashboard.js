@@ -31,7 +31,12 @@ router.post('/post_announcement', isAdmin, async (req, res) => {
 // Route to suspend a user
 router.post('/suspend_user', isAdmin, async (req, res) => {
     try {
-        await User.findByIdAndUpdate(req.body.userId, { isSuspended: true });
+        const user = await User.findById(req.body.userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        user.isSuspended = true;
+        await user.save();
         res.status(200).send('User suspended successfully');
     } catch (error) {
         res.status(500).send('Error suspending user');
@@ -41,7 +46,11 @@ router.post('/suspend_user', isAdmin, async (req, res) => {
 // Route to delete a user
 router.post('/delete_user', isAdmin, async (req, res) => {
     try {
-        await User.findByIdAndDelete(req.body.userId);
+        const user = await User.findById(req.body.userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        await user.remove();
         res.status(200).send('User deleted successfully');
     } catch (error) {
         res.status(500).send('Error deleting user');
@@ -51,7 +60,12 @@ router.post('/delete_user', isAdmin, async (req, res) => {
 // Route to set upload size for a user
 router.post('/set_upload_size', isAdmin, async (req, res) => {
     try {
-        await User.findByIdAndUpdate(req.body.userId, { uploadSize: req.body.uploadSize });
+        const user = await User.findById(req.body.userId);
+        if (!user) {
+            return res.status(404).send('User not found');
+        }
+        user.uploadSize = req.body.uploadSize;
+        await user.save();
         res.status(200).send('Upload size set successfully');
     } catch (error) {
         res.status(500).send('Error setting upload size');

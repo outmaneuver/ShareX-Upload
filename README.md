@@ -127,6 +127,27 @@ The `upload.js` script includes error handling and logging mechanisms. Errors ar
 - **Request Password Reset**: Route to request password reset.
 - **Reset Password**: Route to reset password.
 
+## Middleware Setup
+
+### `middleware/authMiddleware.js`
+
+- **isAuthenticated**: Middleware to check if the user is authenticated.
+- **isAdmin**: Middleware to check if the user is an admin.
+
+To use the middleware, import the functions and use them in your routes. For example:
+
+```javascript
+import { isAuthenticated, isAdmin } from './middleware/authMiddleware';
+
+router.get('/protected-route', isAuthenticated, (req, res) => {
+    res.send('This is a protected route');
+});
+
+router.post('/admin-route', isAuthenticated, isAdmin, (req, res) => {
+    res.send('This is an admin route');
+});
+```
+
 ## Project Description Update
 
 This project is no longer just a script but a file sharing CDN system.

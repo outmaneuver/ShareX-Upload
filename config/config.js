@@ -27,12 +27,24 @@ const siteStatisticSchema = new mongoose.Schema({
   value: { type: String, required: true },
 });
 
+const uploadSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  filename: { type: String, required: true },
+  originalname: { type: String, required: true },
+  mimetype: { type: String, required: true },
+  size: { type: Number, required: true },
+  path: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const User = mongoose.model('User', userSchema);
 const Announcement = mongoose.model('Announcement', announcementSchema);
 const SiteStatistic = mongoose.model('SiteStatistic', siteStatisticSchema);
+const Upload = mongoose.model('Upload', uploadSchema);
 
 export {
   User,
   Announcement,
   SiteStatistic,
+  Upload,
 };
