@@ -2,24 +2,34 @@ const { User } = require('../config/config');
 
 async function isAuthenticated(req, res, next) {
     try {
-        if (!req.session || !req.session.userId) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'Unauthorized'
-            });
+        if (!req.session || !req.session.userId || !req.session.isAuthenticated) {
+            if (req.xhr || req.headers.accept.includes('json')) {
+                return res.status(401).json({
+                    status: 'error',
+                    message: 'Unauthorized'
+                });
+            }
+            return res.redirect('/auth/login');
         }
 
         const user = await User.findById(req.session.userId);
         if (!user) {
-            return res.status(401).json({
-                status: 'error',
-                message: 'User not found'
+            req.session.destroy(() => {
+                if (req.xhr || req.headers.accept.includes('json')) {
+                    return res.status(401).json({
+                        status: 'error',
+                        message: 'User not found'
+                    });
+                }
+                res.redirect('/auth/login');
             });
+            return;
         }
 
         req.user = user;
         next();
     } catch (error) {
+        console.error('Auth middleware error:', error);
         res.status(500).json({
             status: 'error',
             message: 'Authentication error'

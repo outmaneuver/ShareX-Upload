@@ -21,6 +21,9 @@ function isStrongPassword(password) {
 
 // GET route for login page
 router.get('/login', (req, res) => {
+    if (req.session.userId) {
+        return res.redirect('/dashboard');
+    }
     res.sendFile('login.html', { root: './public' });
 });
 
@@ -52,11 +55,19 @@ router.post('/login', async (req, res) => {
 
         // Set session
         req.session.userId = user._id;
-        await req.session.save();
+        req.session.isAuthenticated = true;
+        
+        // Wait for session to be saved
+        await new Promise((resolve) => req.session.save(resolve));
 
-        res.redirect(user.isAdmin ? '/admin_dashboard' : '/dashboard');
+        // Send response based on user role
+        res.json({
+            status: 'success',
+            redirect: user.isAdmin ? '/admin_dashboard' : '/dashboard'
+        });
 
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({
             status: 'error',
             message: 'Server error occurred'
@@ -81,4 +92,39 @@ router.use((req, res, next) => {
     }
 });
 
+// Add logout route
+router.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/auth/login');
+    });
+});
+
 module.exports = router;
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    try {
+        const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                usernameOrEmail: document.getElementById('usernameOrEmail').value,
+                password: document.getElementById('password').value
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            window.location.href = data.redirect;
+        } else {
+            alert(data.message || 'Login failed');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('An error occurred during login');
+    }
+});
