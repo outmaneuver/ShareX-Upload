@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// Set strictQuery to true to suppress the warning
+mongoose.set('strictQuery', true);
+
 // MongoDB connection config
 const connectDB = async () => {
   try {
