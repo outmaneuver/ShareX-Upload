@@ -37,6 +37,7 @@ app.use('/auth', require('./routes/auth'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/register', require('./routes/register'));
 app.use('/i', require('./routes/images'));
+app.use('/settings', require('./routes/settings'));
 
 // Serve static pages
 app.get('/', (req, res) => {
@@ -76,6 +77,14 @@ app.get('/profile', (req, res) => {
         res.redirect('/login');
     } else {
         res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+    }
+});
+
+app.get('/settings', (req, res) => {
+    if (!req.session.userId) {
+        res.redirect('/login');
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'settings.html'));
     }
 });
 

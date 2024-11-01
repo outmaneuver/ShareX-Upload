@@ -5,23 +5,25 @@
     <link rel="stylesheet" href="/styles/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="light-mode">
+<body>
     <div class="container">
         <nav class="navbar">
-            <h1>Dashboard</h1>
+            <div class="nav-left">
+                <h1>Dashboard</h1>
+            </div>
             <div class="nav-right">
                 <div class="theme-switch-wrapper">
                     <label class="theme-switch" for="checkbox">
                         <input type="checkbox" id="checkbox" />
                         <div class="slider round"></div>
                     </label>
+                    <span class="theme-label">Theme</span>
                 </div>
                 <div class="profile-menu">
                     <div class="profile-circle" id="profileTrigger">
                         <span class="initials"></span>
                     </div>
                     <div class="profile-dropdown">
-                        <a href="/profile"><i class="fas fa-user"></i> Profile</a>
                         <a href="/settings"><i class="fas fa-cog"></i> Settings</a>
                         <a href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
                     </div>
@@ -46,34 +48,10 @@
                 </div>
 
                 <div class="card">
-                    <h3>Settings</h3>
-                    <form id="settingsForm">
-                        <div class="form-group">
-                            <label for="file_name_length">File Name Length</label>
-                            <input type="number" id="file_name_length" name="file_name_length" min="3" max="50">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="upload_password">Upload Password</label>
-                            <input type="password" id="upload_password" name="upload_password">
-                        </div>
-
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="hide_user_info" name="hide_user_info">
-                                Hide User Info
-                            </label>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary">Save Settings</button>
-                    </form>
-
-                    <div class="sharex-config">
-                        <h4>ShareX Configuration</h4>
-                        <button onclick="generateConfig()" class="btn btn-secondary">
-                            Generate Config File
-                        </button>
-                    </div>
+                    <h3>ShareX Configuration</h3>
+                    <button onclick="generateConfig()" class="btn btn-primary">
+                        Generate Config File
+                    </button>
                 </div>
             </div>
 
