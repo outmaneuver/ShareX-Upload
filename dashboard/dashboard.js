@@ -1,7 +1,6 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import { User, Upload } from '../models/config';
-import SiteStatistic from '../models/siteStatistic';
+const express = require('express');
+const mongoose = require('mongoose');
+const { User, Upload, SiteStatistic } = require('../config/config');
 
 const router = express.Router();
 
@@ -72,4 +71,4 @@ router.post('/update_settings', isAuthenticated, async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;

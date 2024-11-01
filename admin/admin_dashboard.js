@@ -1,6 +1,6 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import { User, Announcement, SiteStatistic } from '../models/config';
+const express = require('express');
+const mongoose = require('mongoose');
+const { User, Announcement, SiteStatistic } = require('../config/config');
 
 const router = express.Router();
 
@@ -100,4 +100,4 @@ router.get('/forgot_password_domain', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;

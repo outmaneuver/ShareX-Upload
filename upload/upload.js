@@ -1,7 +1,7 @@
-import express from 'express';
-import multer from 'multer';
-import path from 'path';
-import { User, Upload } from '../models/config';
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const { User, Upload } = require('../config/config');
 
 const router = express.Router(); // P8689
 
@@ -46,4 +46,4 @@ router.post('/upload', isAuthenticated, upload.single('sharex'), async (req, res
     }
 });
 
-export default router;
+module.exports = router;
