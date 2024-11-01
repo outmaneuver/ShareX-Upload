@@ -111,6 +111,21 @@ router.get('/statistics', isAuthenticated, async (req, res) => {
     }
 });
 
+// Add settings update route
+router.post('/settings', isAuthenticated, async (req, res) => {
+    try {
+        const { file_name_length, upload_password, hide_user_info } = req.body;
+        await User.findByIdAndUpdate(req.user._id, {
+            file_name_length,
+            upload_password,
+            hide_user_info
+        });
+        res.status(200).json({ message: 'Settings updated successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating settings', error });
+    }
+});
+
 // Rest of your routes...
 
 module.exports = router;
