@@ -9,19 +9,22 @@ async function checkForUpdates() {
         console.log(`[${new Date().toISOString()}] Checking for updates...`);
         
         // First backup .env file
-        await execCommand('cp .env .env.backup', projectDir);
+        await execCommand('cp .env .env.backup || true', projectDir);
         
-        // Remove untracked files
-        await execCommand('git clean -f', projectDir);
+        // Force remove untracked files and directories
+        await execCommand('git clean -fd', projectDir);
         
         // Reset any local changes
         await execCommand('git reset --hard HEAD', projectDir);
         
-        // Pull latest changes
-        await execCommand('git pull origin main', projectDir);
+        // Fetch latest changes
+        await execCommand('git fetch origin main', projectDir);
+        
+        // Force pull latest changes
+        await execCommand('git pull origin main --force', projectDir);
         
         // Restore .env file
-        await execCommand('cp .env.backup .env', projectDir);
+        await execCommand('cp .env.backup .env || true', projectDir);
         
         // Install any new dependencies
         await execCommand('bun install', projectDir);
