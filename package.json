@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "bun run index.js"
+    "start": "bun run index.js",
+    "update": "bun run scripts/auto-update.js"
   },
   "dependencies": {
     "express": "^4.17.1",
