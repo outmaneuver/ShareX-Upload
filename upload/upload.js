@@ -21,9 +21,18 @@ const upload = multer({ storage: storage });
 
 // Update the upload route to handle files
 router.post('/', async (req, res, next) => {
-    // Upload handling code
     try {
-        const user = await User.findById(req.session.userId);
+        // Check for authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Unauthorized'
+            });
+        }
+
+        // Find user by upload password
+        const user = await User.findOne({ upload_password: authHeader });
         if (!user) {
             return res.status(401).json({
                 status: 'error',

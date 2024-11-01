@@ -22,7 +22,7 @@ router.get('/', isAuthenticated, async (req, res) => {
             Name: `${req.user.username}'s Config`,
             DestinationType: "ImageUploader, TextUploader, FileUploader",
             RequestMethod: "POST",
-            RequestURL: `${domain}/upload`,  // This path should match your upload route
+            RequestURL: `${domain}/upload`,
             Headers: {
                 "Authorization": req.user.upload_password
             },
