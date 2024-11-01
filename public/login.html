@@ -3,11 +3,12 @@
 <head>
     <title>Login - ShareX Upload</title>
     <link rel="stylesheet" href="/styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div class="auth-form">
-            <h2>Login</h2>
+            <h2>Login to ShareX Upload</h2>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="usernameOrEmail">Username or Email</label>
@@ -17,9 +18,13 @@
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
                 <div class="form-links">
-                    <a href="/register">Create Account</a>
+                    <a href="/register" class="btn btn-link">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </a>
                 </div>
             </form>
         </div>

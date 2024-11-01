@@ -1,19 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Profile</title>
+    <title>Profile - ShareX Upload</title>
     <link rel="stylesheet" href="/styles/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <h2>Profile</h2>
-        <form id="profileForm">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+        <nav class="navbar">
+            <div class="nav-left">
+                <h1>Profile Settings</h1>
+                <a href="/dashboard" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
             </div>
-            <button type="submit" class="btn btn-primary">Update Profile</button>
-        </form>
+            <div class="nav-right">
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="checkbox">
+                        <input type="checkbox" id="checkbox" />
+                        <div class="slider round"></div>
+                    </label>
+                    <span class="theme-label">Theme</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="settings-grid">
+            <div class="card">
+                <h3>Account Information</h3>
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" disabled>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>Change Password</h3>
+                <form id="passwordForm">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key"></i> Update Password
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
     <script src="/js/profile.js"></script>
 </body>

@@ -17,6 +17,7 @@ connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use('/styles', express.static(path.join(__dirname, 'styles')));
 
 // Session configuration
 app.use(session({
