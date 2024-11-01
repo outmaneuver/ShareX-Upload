@@ -13,13 +13,44 @@ function isAuthenticated(req, res, next) {
     }
 }
 
-// Route to fetch user images
+// Route to fetch user images with filtering and sorting
 router.get('/images', isAuthenticated, async (req, res) => {
     try {
-        const images = await Upload.find({ userId: req.user._id });
-        res.status(200).json(images);
+        const { sortBy = 'createdAt', order = 'desc', filter } = req.query;
+        const query = { userId: req.user._id };
+        
+        if (filter) {
+            query.mimetype = new RegExp(filter, 'i');
+        }
+
+        const images = await Upload.find(query)
+            .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
+            .limit(50);
+
+        const stats = await Upload.aggregate([
+            { $match: { userId: req.user._id } },
+            { 
+                $group: {
+                    _id: null,
+                    totalSize: { $sum: '$size' },
+                    totalFiles: { $sum: 1 }
+                }
+            }
+        ]);
+
+        res.json({
+            status: 'success',
+            data: {
+                images,
+                stats: stats[0] || { totalSize: 0, totalFiles: 0 }
+            }
+        });
+
     } catch (error) {
-        res.status(500).send('Error fetching images');
+        res.status(500).json({
+            status: 'error',
+            message: 'Error fetching images'
+        });
     }
 });
 

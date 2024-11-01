@@ -100,4 +100,50 @@ router.get('/forgot_password_domain', async (req, res) => {
     }
 });
 
+// Add user search and filtering
+router.get('/users', isAdmin, async (req, res) => {
+    try {
+        const { search, sortBy = 'createdAt', order = 'desc', page = 1 } = req.query;
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        let query = {};
+        if (search) {
+            query = {
+                $or: [
+                    { username: new RegExp(search, 'i') },
+                    { email: new RegExp(search, 'i') }
+                ]
+            };
+        }
+
+        const users = await User.find(query)
+            .sort({ [sortBy]: order === 'desc' ? -1 : 1 })
+            .skip(skip)
+            .limit(limit)
+            .select('-password');
+
+        const total = await User.countDocuments(query);
+
+        res.json({
+            status: 'success',
+            data: {
+                users,
+                pagination: {
+                    total,
+                    pages: Math.ceil(total / limit),
+                    page: parseInt(page),
+                    limit
+                }
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            message: 'Error fetching users'
+        });
+    }
+});
+
 module.exports = router;

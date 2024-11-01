@@ -26,41 +26,59 @@ router.get('/login', (req, res) => {
 
 // User login route
 router.post('/login', async (req, res) => {
-    const { usernameOrEmail, password } = req.body;
-
-    if (!usernameOrEmail || !password) {
-        return res.status(400).json({ message: 'Please fill in all fields.' });
-    }
-
-    if (!isValidEmail(usernameOrEmail) && !/^[a-zA-Z0-9_]+$/.test(usernameOrEmail)) {
-        return res.status(400).json({ message: 'Invalid username or email format.' });
-    }
-
-    if (!isStrongPassword(password)) {
-        return res.status(400).json({ message: 'Password must be at least 8 characters long and include at least one letter, one number, and one special character.' });
-    }
-
     try {
-        const user = await User.findOne({ $or: [{ username: usernameOrEmail }, { email: usernameOrEmail }] });
+        const { usernameOrEmail, password } = req.body;
 
-        if (!user) {
-            return res.status(404).json({ message: 'Username or email not found.' });
+        if (!usernameOrEmail || !password) {
+            return res.status(400).json({ 
+                status: 'error',
+                message: 'All fields are required' 
+            });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const user = await User.findOne({
+            $or: [
+                { username: usernameOrEmail },
+                { email: usernameOrEmail }
+            ]
+        });
 
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid password.' });
+        if (!user) {
+            return res.status(401).json({
+                status: 'error', 
+                message: 'Invalid credentials'
+            });
+        }
+
+        if (user.isSuspended) {
+            return res.status(403).json({
+                status: 'error',
+                message: 'Account suspended. Please contact support.'
+            });
+        }
+
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (!isValidPassword) {
+            return res.status(401).json({
+                status: 'error',
+                message: 'Invalid credentials'
+            });
         }
 
         req.session.userId = user._id;
-        if (user.isAdmin) {
-            return res.status(200).json({ message: 'Login successful', redirectUrl: '/admin_dashboard' });
-        } else {
-            return res.status(200).json({ message: 'Login successful', redirectUrl: '/dashboard' });
-        }
+        const redirectUrl = user.isAdmin ? '/admin_dashboard' : '/dashboard';
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Login successful',
+            redirectUrl
+        });
+
     } catch (error) {
-        return res.status(500).json({ message: 'Server error', error });
+        res.status(500).json({
+            status: 'error',
+            message: 'Server error occurred'
+        });
     }
 });
 
