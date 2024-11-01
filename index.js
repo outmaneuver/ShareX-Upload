@@ -1,58 +1,46 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import bodyParser from 'body-parser';
-import path from 'path';
-import session from 'express-session';
+require('dotenv').config();
+const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
+const session = require('express-session');
+const { connectDB } = require('./config/config');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware for handling JSON requests
+// Connect to MongoDB
+connectDB();
+
+// Middleware setup
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// Middleware for serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Check if SESSION_SECRET is set
+// Session configuration
 if (!process.env.SESSION_SECRET) {
   console.error('Error: SESSION_SECRET environment variable is not set.');
   process.exit(1);
 }
 
-// Session management middleware for user authentication
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false } // Set to true if using HTTPS
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
-// MongoDB connection
-mongoose.connect('mongodb://localhost:27017/sharex', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// Routes
+app.use('/admin_dashboard', require('./admin/admin_dashboard'));
+app.use('/auth', require('./auth/auth'));
+app.use('/dashboard', require('./dashboard/dashboard'));
+app.use('/forgot_password', require('./forgot_password/forgot_password'));
+app.use('/register', require('./register'));
+app.use('/reset_password', require('./reset_password/reset_password'));
+app.use('/upload', require('./upload/upload'));
 
-// Import routes
-import adminDashboardRoutes from './admin/admin_dashboard';
-import authRoutes from './auth/auth';
-import dashboardRoutes from './dashboard/dashboard';
-import forgotPasswordRoutes from './forgot_password/forgot_password';
-import registerRoutes from './register';
-import resetPasswordRoutes from './reset_password/reset_password';
-import uploadRoutes from './upload/upload';
-
-// Use routes
-app.use('/admin_dashboard', adminDashboardRoutes);
-app.use('/auth', authRoutes);
-app.use('/dashboard', dashboardRoutes);
-app.use('/forgot_password', forgotPasswordRoutes);
-app.use('/register', registerRoutes);
-app.use('/reset_password', resetPasswordRoutes);
-app.use('/upload', uploadRoutes);
-
-// Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

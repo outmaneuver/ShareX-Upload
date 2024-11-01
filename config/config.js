@@ -1,10 +1,21 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-mongoose.connect('mongodb://localhost:27017/sharex', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// MongoDB connection config
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
+};
 
+// Define schemas
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
@@ -37,12 +48,14 @@ const uploadSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Create models
 const User = mongoose.model('User', userSchema);
 const Announcement = mongoose.model('Announcement', announcementSchema);
 const SiteStatistic = mongoose.model('SiteStatistic', siteStatisticSchema);
 const Upload = mongoose.model('Upload', uploadSchema);
 
-export {
+module.exports = {
+  connectDB,
   User,
   Announcement,
   SiteStatistic,
