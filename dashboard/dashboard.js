@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const { User, Upload, SiteStatistic } = require('../config/config');
 const path = require('path');
 const { isAuthenticated } = require('../middleware/authMiddleware');
+const crypto = require('crypto');
 
 const router = express.Router();
 
@@ -145,6 +146,55 @@ router.post('/profile', isAuthenticated, async (req, res) => {
         res.status(200).json({ message: 'Profile updated successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error updating profile', error });
+    }
+});
+
+// Add route to get user profile info
+router.get('/profile/info', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('email username');
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user info', error });
+    }
+});
+
+// Add config generation route
+router.get('/generate-config', isAuthenticated, async (req, res) => {
+    try {
+        // Generate unique filename based on user's file_name_length setting
+        const fileNameLength = req.user.file_name_length || 10;
+        const generateFileName = () => crypto.randomBytes(fileNameLength).toString('hex');
+
+        // Generate upload password if not exists
+        if (!req.user.upload_password) {
+            const upload_password = crypto.randomBytes(32).toString('hex');
+            await User.findByIdAndUpdate(req.user._id, { upload_password });
+            req.user.upload_password = upload_password;
+        }
+
+        const domain = `${req.protocol}://${req.get('host')}`;
+        
+        const config = {
+            Version: "13.0.1",
+            Name: `${req.user.username}'s Config`,
+            DestinationType: "ImageUploader",
+            RequestMethod: "POST",
+            RequestURL: `${domain}/upload`,
+            Headers: {
+                "Authorization": req.user.upload_password
+            },
+            Body: "MultipartFormData",
+            FileFormName: "image",
+            URL: "$json:url$",
+            ErrorMessage: "$json:message$"
+        };
+
+        res.setHeader('Content-Disposition', `attachment; filename=${req.user.username}-sharex-config.sxcu`);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(config, null, 2));
+    } catch (error) {
+        res.status(500).json({ message: 'Error generating config', error });
     }
 });
 
