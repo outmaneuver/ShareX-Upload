@@ -8,6 +8,10 @@ const router = express.Router();
 // Generate ShareX configuration file
 router.get('/', isAuthenticated, async (req, res) => {
     try {
+        // Generate unique filename based on user's file_name_length setting
+        const fileNameLength = req.user.file_name_length || 10; // Default to 10 if not set
+        const generateFileName = () => crypto.randomBytes(fileNameLength).toString('hex');
+
         // Generate upload password if not exists
         if (!req.user.upload_password) {
             const upload_password = crypto.randomBytes(32).toString('hex');

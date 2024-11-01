@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { User, Upload } = require('../config/config');
 const { isAuthenticated } = require('../middleware/authMiddleware');
 
@@ -18,10 +19,24 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads/');
     },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
-        const ext = path.extname(file.originalname);
-        cb(null, `${uniqueSuffix}${ext}`);
+    filename: async (req, file, cb) => {
+        try {
+            // Get user from authorization header
+            const authHeader = req.headers.authorization;
+            const user = await User.findOne({ upload_password: authHeader });
+            
+            if (!user) {
+                return cb(new Error('Invalid upload password'));
+            }
+
+            const fileNameLength = user.file_name_length || 10; // Default to 10 if not set
+            const randomString = crypto.randomBytes(Math.floor(fileNameLength/2)).toString('hex');
+            const ext = path.extname(file.originalname);
+            const filename = `${randomString}${ext}`;
+            cb(null, filename);
+        } catch (error) {
+            cb(error);
+        }
     }
 });
 

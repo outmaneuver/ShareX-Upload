@@ -18,6 +18,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/styles', express.static('styles'));
 
+// In index.js, add this after other middleware setup
+const uploadPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadPath));
+
+// Optional: Add security middleware to check if user is allowed to view the image
+app.use('/uploads', (req, res, next) => {
+    // You can add authentication checks here if needed
+    next();
+});
+
 // Session configuration
 if (!process.env.SESSION_SECRET) {
   console.error('Error: SESSION_SECRET environment variable is not set.');
