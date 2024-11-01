@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../config/config');
+const crypto = require('crypto');
 
 router.post('/login', async (req, res) => {
     try {
@@ -69,6 +70,42 @@ router.post('/logout', (req, res) => {
             redirect: '/auth/login'
         });
     });
+});
+
+// Add forgot password route
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ message: 'Please provide an email address' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+        
+        // Don't reveal if user exists or not for security
+        if (!user) {
+            return res.status(200).json({ message: 'If an account exists with this email, you will receive a password reset link shortly.' });
+        }
+
+        // Generate reset token
+        const token = crypto.randomBytes(32).toString('hex');
+        const resetTokenExpiry = Date.now() + 3600000; // 1 hour
+
+        user.resetToken = token;
+        user.resetTokenExpiry = resetTokenExpiry;
+        await user.save();
+
+        // Send email with reset link
+        // Note: You'll need to implement the email sending functionality
+        // This is just a placeholder
+        console.log(`Reset link: ${process.env.BASE_URL}/reset-password?token=${token}`);
+
+        res.status(200).json({ message: 'If an account exists with this email, you will receive a password reset link shortly.' });
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        res.status(500).json({ message: 'An error occurred while processing your request' });
+    }
 });
 
 module.exports = router; 
