@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const User = require('../models/User');
+const { User } = require('./config/config');  // Fixed import path
 
 const router = express.Router(); // P71c3
 
