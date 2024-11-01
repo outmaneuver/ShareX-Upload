@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const { User } = require('../config/config');
+const { isAuthenticated } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 // Validate email format

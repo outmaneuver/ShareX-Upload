@@ -1,6 +1,6 @@
 const { User } = require('../config/config');
 
-exports.isAuthenticated = async (req, res, next) => {
+const isAuthenticated = async (req, res, next) => {
     try {
         if (!req.session.userId) {
             return res.status(401).json({
@@ -27,7 +27,7 @@ exports.isAuthenticated = async (req, res, next) => {
     }
 };
 
-function isAdmin(req, res, next) {
+const isAdmin = (req, res, next) => {
     if (req.user && req.user.isAdmin) {
         next();
     } else {
@@ -36,7 +36,7 @@ function isAdmin(req, res, next) {
             message: 'Admin access required'
         });
     }
-}
+};
 
 module.exports = {
     isAuthenticated,

@@ -3,8 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
-const { connectDB, User } = require('./config/config'); // Add User to the import
-const registerRouter = require('./register');
+const { connectDB } = require('./config/config');
+const MongoStore = require('connect-mongo');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,93 +16,32 @@ connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/styles', express.static('styles'));
-
-// In index.js, add this after other middleware setup
-const uploadPath = path.join(__dirname, 'uploads');
-app.use('/uploads', express.static(uploadPath));
-
-// Optional: Add security middleware to check if user is allowed to view the image
-app.use('/uploads', (req, res, next) => {
-    // You can add authentication checks here if needed
-    next();
-});
-
-// Serve uploaded files
-app.use('/uploads', (req, res, next) => {
-    // Disable redirect following
-    res.setHeader('Cache-Control', 'no-store');
-    express.static(uploadPath)(req, res, next);
-});
 
 // Session configuration
-const sessionConfig = {
-    secret: process.env.SESSION_SECRET,
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost/sharex-upload'
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        secure: process.env.NODE_ENV === 'production'
     }
-};
-
-if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', 1); // trust first proxy
-    sessionConfig.cookie.secure = true; // serve secure cookies
-}
-
-app.use(session(sessionConfig));
-
-// User session middleware
-app.use(async (req, res, next) => {
-  if (req.session && req.session.userId) {
-    try {
-      const user = await User.findById(req.session.userId);
-      if (user) {
-        req.user = user;
-      }
-    } catch (error) {
-      console.error('Session user lookup failed:', error);
-    }
-  }
-  next();
-});
-
-// Serve HTML pages
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
-});
-
-app.get('/dashboard', (req, res) => {
-    if (!req.user) {
-        return res.redirect('/auth/login');
-    }
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-app.get('/admin_dashboard', (req, res) => {
-    if (!req.user || !req.user.isAdmin) {
-        return res.redirect('/auth/login');
-    }
-    res.sendFile(path.join(__dirname, 'public', 'admin_dashboard.html'));
-});
+}));
 
 // Routes
 app.use('/auth', require('./auth/auth'));
 app.use('/dashboard', require('./dashboard/dashboard'));
-app.use('/admin_dashboard', require('./admin/admin_dashboard'));
-app.use('/forgot_password', require('./forgot_password/forgot_password'));
-app.use('/register', registerRouter);
-app.use('/reset_password', require('./reset_password/reset_password'));
-app.use('/upload', require('./upload/upload'));
-app.use('/dashboard/generate-config', require('./dashboard/generate-config'));
+app.use('/register', require('./routes/register'));
+app.use('/i', require('./routes/images'));
 
-// Root route redirect
+// Root route
 app.get('/', (req, res) => {
     res.redirect('/auth/login');
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port ${port}`);
 });

@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const { User, Upload, SiteStatistic } = require('../config/config');
 const path = require('path');
 const { isAuthenticated } = require('../middleware/authMiddleware');
