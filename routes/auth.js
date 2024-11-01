@@ -2,14 +2,26 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../config/config');
-const { isAuthenticated } = require('../middleware/authMiddleware');
 
-// Login route
+router.get('/login', (req, res) => {
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.sendFile('login.html', { root: './public' });
+    }
+});
+
 router.post('/login', async (req, res) => {
     try {
         const { usernameOrEmail, password } = req.body;
 
-        // Find user by username or email
+        if (!usernameOrEmail || !password) {
+            return res.status(400).json({
+                status: 'error',
+                message: 'All fields are required'
+            });
+        }
+
         const user = await User.findOne({
             $or: [
                 { username: usernameOrEmail },
@@ -24,7 +36,6 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Compare password
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             return res.status(401).json({
@@ -33,11 +44,9 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // Set user session
         req.session.userId = user._id;
         req.session.username = user.username;
 
-        // Redirect to dashboard on successful login
         res.json({
             status: 'success',
             message: 'Login successful',
@@ -53,10 +62,13 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Logout route
 router.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/login');
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Logout error:', err);
+        }
+        res.redirect('/login');
+    });
 });
 
 module.exports = router; 
