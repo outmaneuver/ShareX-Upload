@@ -1,9 +1,7 @@
-import express from 'express';
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-import User from '../models/User';
-import PasswordReset from '../models/PasswordReset';
-import SiteStatistic from '../models/SiteStatistic';
+const express = require('express');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const { User, SiteStatistic } = require('../config/config');
 
 const router = express.Router();
 
@@ -106,4 +104,4 @@ router.post('/update-password', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router;

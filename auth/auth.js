@@ -1,6 +1,6 @@
-import express from 'express';
-import bcrypt from 'bcrypt';
-import User from '../models/User';
+const express = require('express');
+const bcrypt = require('bcrypt');
+const { User } = require('../config/config');
 
 const router = express.Router();
 
@@ -76,4 +76,4 @@ router.use((req, res, next) => {
     }
 });
 
-export default router;
+module.exports = router;
