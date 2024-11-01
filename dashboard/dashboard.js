@@ -1,7 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import { User } from '../config/config';
-import Upload from '../models/upload';
+import { User, Upload } from '../models/config';
 import SiteStatistic from '../models/siteStatistic';
 
 const router = express.Router();

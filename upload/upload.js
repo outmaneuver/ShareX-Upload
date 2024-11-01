@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { User, Upload } from '../config/config';
+import { User, Upload } from '../models/config';
 
 const router = express.Router(); // P8689
 

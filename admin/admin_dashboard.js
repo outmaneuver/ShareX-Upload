@@ -1,8 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import Announcement from '../models/announcement';
-import User from '../models/user';
-import SiteStatistic from '../models/siteStatistic';
+import { User, Announcement, SiteStatistic } from '../models/config';
 
 const router = express.Router();
 
