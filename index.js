@@ -129,3 +129,8 @@ app.use((req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+
+// Add this route to your existing index.js file
+app.get('/reset-password', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
+});

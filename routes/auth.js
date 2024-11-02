@@ -151,4 +151,49 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
+// Add this route to your existing auth.js file
+router.post('/reset-password', async (req, res) => {
+    const { token, password, confirmPassword } = req.body;
+
+    if (!token || !password || !confirmPassword) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    if (password !== confirmPassword) {
+        return res.status(400).json({ message: 'Passwords do not match' });
+    }
+
+    try {
+        const user = await User.findOne({ 
+            resetToken: token,
+            resetTokenExpiry: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ 
+                message: 'Invalid or expired password reset token' 
+            });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Update user's password and clear reset token
+        user.password = hashedPassword;
+        user.resetToken = undefined;
+        user.resetTokenExpiry = undefined;
+        await user.save();
+
+        res.json({ 
+            status: 'success',
+            message: 'Password has been reset successfully' 
+        });
+    } catch (error) {
+        console.error('Reset password error:', error);
+        res.status(500).json({ 
+            message: 'An error occurred while resetting your password' 
+        });
+    }
+});
+
 module.exports = router; 
