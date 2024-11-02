@@ -93,35 +93,42 @@ router.get('/images', isAuthenticated, async (req, res) => {
     }
 });
 
-// Add statistics route
+// Update the statistics route to handle deleted files
 router.get('/statistics', isAuthenticated, async (req, res) => {
     try {
-        // Check if user has any uploads first
-        const hasUploads = await Upload.exists({ userId: req.session.userId });
-        
-        if (!hasUploads) {
-            return res.json({
-                status: 'success',
-                uploads: 0,
-                storageUsed: 0
-            });
-        }
-
         const stats = await Upload.aggregate([
             { $match: { userId: new mongoose.Types.ObjectId(req.session.userId) } },
             {
                 $group: {
                     _id: null,
                     totalUploads: { $sum: 1 },
-                    totalSize: { $sum: '$size' }
+                    totalActiveUploads: {
+                        $sum: {
+                            $cond: [{ $eq: ["$deleted", true] }, 0, 1]
+                        }
+                    },
+                    totalDeletedUploads: {
+                        $sum: {
+                            $cond: [{ $eq: ["$deleted", true] }, 1, 0]
+                        }
+                    },
+                    totalSize: { $sum: '$size' },
+                    activeTotalSize: {
+                        $sum: {
+                            $cond: [{ $eq: ["$deleted", true] }, 0, "$size"]
+                        }
+                    }
                 }
             }
         ]);
 
         res.json({
             status: 'success',
-            uploads: stats[0]?.totalUploads || 0,
-            storageUsed: stats[0]?.totalSize || 0
+            uploads: stats[0]?.totalActiveUploads || 0,
+            totalUploads: stats[0]?.totalUploads || 0,
+            deletedUploads: stats[0]?.totalDeletedUploads || 0,
+            storageUsed: stats[0]?.activeTotalSize || 0,
+            totalStorageUsed: stats[0]?.totalSize || 0
         });
     } catch (error) {
         console.error('Statistics error:', error);
@@ -186,7 +193,7 @@ router.get('/generate-config', isAuthenticated, async (req, res) => {
     }
 });
 
-// Update the delete route
+// Update the delete route to soft delete
 router.delete('/images/:id', isAuthenticated, async (req, res) => {
     try {
         const imageId = req.params.id;
@@ -204,23 +211,10 @@ router.delete('/images/:id', isAuthenticated, async (req, res) => {
             });
         }
 
-        // Delete the file from filesystem
-        try {
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = path.dirname(__filename);
-            const filePath = path.join(__dirname, '..', 'uploads', image.filename);
-            
-            // Check if file exists before attempting deletion
-            await fs.access(filePath);
-            await fs.unlink(filePath);
-            console.log(`File deleted successfully: ${filePath}`);
-        } catch (err) {
-            console.error('File deletion error:', err);
-            // Continue even if file doesn't exist
-        }
-
-        // Delete the database record completely
-        await Upload.deleteOne({ _id: imageId });
+        // Soft delete by updating the record
+        image.deleted = true;
+        image.deletedAt = new Date();
+        await image.save();
 
         res.json({
             status: 'success',

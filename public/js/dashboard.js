@@ -6,18 +6,28 @@ async function loadStatistics() {
         
         const data = await response.json();
         
-        // Always show at least 0
+        // Update active uploads count
         document.getElementById('totalUploads').textContent = data.uploads || '0';
         document.getElementById('storageUsed').textContent = formatBytes(data.storageUsed || 0);
         
-        // Update the UI to show the statistics are loaded
+        // Update deleted uploads if element exists
+        const deletedUploadsEl = document.getElementById('deletedUploads');
+        if (deletedUploadsEl) {
+            deletedUploadsEl.textContent = data.deletedUploads || '0';
+        }
+        
+        // Update total uploads if element exists
+        const totalUploadsEl = document.getElementById('totalUploadsAll');
+        if (totalUploadsEl) {
+            totalUploadsEl.textContent = data.totalUploads || '0';
+        }
+        
         const statsContainer = document.getElementById('statistics');
         if (statsContainer) {
             statsContainer.classList.remove('loading');
         }
     } catch (error) {
         console.error('Error loading statistics:', error);
-        // Show error state but keep showing 0s
         document.getElementById('totalUploads').textContent = '0';
         document.getElementById('storageUsed').textContent = '0 Bytes';
         showToast('Failed to load statistics', 'error');
@@ -341,6 +351,16 @@ function initializeThemeSwitch() {
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
+    const uploadsContainer = document.getElementById('uploads');
+    const toggleContainer = document.createElement('div');
+    toggleContainer.className = 'upload-controls';
+    toggleContainer.innerHTML = `
+        <button id="toggleDeletedBtn" class="btn btn-secondary" onclick="toggleDeletedFiles()">
+            <i class="fas fa-eye"></i> Show Deleted Files
+        </button>
+    `;
+    uploadsContainer.parentNode.insertBefore(toggleContainer, uploadsContainer);
+    
     loadUploads(1, true);
     loadStatistics();
     initializeThemeSwitch();
@@ -452,10 +472,16 @@ function toggleDeletedFiles() {
     showDeletedFiles = !showDeletedFiles;
     currentPage = 1;
     loadUploads(1, true);
+    updateToggleButton();
+}
+
+// Add update toggle button function
+function updateToggleButton() {
     const toggleBtn = document.getElementById('toggleDeletedBtn');
     if (toggleBtn) {
         toggleBtn.innerHTML = showDeletedFiles ? 
             '<i class="fas fa-eye-slash"></i> Hide Deleted Files' : 
             '<i class="fas fa-eye"></i> Show Deleted Files';
+        toggleBtn.classList.toggle('active', showDeletedFiles);
     }
 }
