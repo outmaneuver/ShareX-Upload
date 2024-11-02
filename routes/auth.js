@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { User } from '../config/config.js';
+import { User } from '../models/User.js';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 
