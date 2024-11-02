@@ -23,7 +23,7 @@ await connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve static files - order matters!
+// Serve static files
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -41,57 +41,27 @@ app.use(session({
     }
 }));
 
-// Public routes
-app.get('/', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'login.html'));
-    }
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
-});
-
-app.get('/forgot-password', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
-});
-
-app.get('/reset-password', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
-});
-
-// Protected routes
-app.get('/dashboard', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-app.get('/settings', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'settings.html'));
-});
-
-app.get('/profile', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
-});
-
-// API routes
+// Import routes
 const authRouter = (await import('./routes/auth.js')).default;
+const dashboardRouter = (await import('./dashboard/dashboard.js')).default;
 const settingsRouter = (await import('./routes/settings.js')).default;
 const imagesRouter = (await import('./routes/images.js')).default;
 const registerRouter = (await import('./routes/register.js')).default;
 const uploadRouter = (await import('./routes/upload.js')).default;
+const adminRouter = (await import('./admin/admin_dashboard.js')).default;
+const forgotPasswordRouter = (await import('./forgot_password/forgot_password.js')).default;
+const resetPasswordRouter = (await import('./reset_password/reset_password.js')).default;
 
+// Use routes
 app.use('/auth', authRouter);
 app.use('/dashboard', dashboardRouter);
 app.use('/settings', settingsRouter);
 app.use('/i', imagesRouter);
 app.use('/register', registerRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/admin', adminRouter);
+app.use('/forgot-password', forgotPasswordRouter);
+app.use('/reset-password', resetPasswordRouter);
 
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
