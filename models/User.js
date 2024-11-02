@@ -35,8 +35,8 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Add this as a static method instead of an instance method
-userSchema.statics.isSamePassword = async function(userId, newPassword) {
+// Static method to check if new password matches old password
+userSchema.statics.comparePasswords = async function(userId, newPassword) {
     const user = await this.findById(userId);
     if (!user) return false;
     return bcrypt.compare(newPassword, user.password);

@@ -179,7 +179,7 @@ router.post('/reset-password', async (req, res) => {
 
         try {
             // Check if new password is same as old password using static method
-            const isSamePassword = await User.isSamePassword(user._id, password);
+            const isSamePassword = await User.comparePasswords(user._id, password);
             if (isSamePassword) {
                 return res.status(400).json({
                     status: 'error',
