@@ -179,6 +179,7 @@ async function loadUploads(page = 1, reset = false) {
             if (page === 1) {
                 uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
             }
+            addPaginationControls();
             return;
         }
 
@@ -325,27 +326,9 @@ function initializeThemeSwitch() {
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', () => {
-    const statsContainer = document.getElementById('statistics');
-    if (statsContainer) {
-        statsContainer.classList.add('loading');
-    }
+    loadUploads(1, true);
     loadStatistics();
-    loadUploads(1);
     initializeThemeSwitch();
-    
-    // Add debounced scroll handler
-    let scrollTimeout;
-    window.addEventListener('scroll', () => {
-        if (scrollTimeout) clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
-                if (!isLoading && hasMoreImages) {
-                    currentPage++;
-                    loadUploads(currentPage);
-                }
-            }
-        }, 100);
-    });
 });
 
 // Add this function to handle logout
@@ -412,6 +395,12 @@ async function generateConfig() {
 
 // Add pagination UI to the dashboard
 function addPaginationControls() {
+    // Remove existing pagination if it exists
+    const existingPagination = document.querySelector('.pagination');
+    if (existingPagination) {
+        existingPagination.remove();
+    }
+
     const paginationContainer = document.createElement('div');
     paginationContainer.className = 'pagination';
     paginationContainer.innerHTML = `
@@ -427,17 +416,18 @@ function addPaginationControls() {
     const uploadsContainer = document.getElementById('uploads');
     uploadsContainer.parentNode.insertBefore(paginationContainer, uploadsContainer.nextSibling);
     
-    document.getElementById('prevPage').addEventListener('click', () => {
+    // Add event listeners
+    document.getElementById('prevPage')?.addEventListener('click', () => {
         if (currentPage > 1) {
             currentPage--;
-            loadUploads(currentPage);
+            loadUploads(currentPage, true);
         }
     });
     
-    document.getElementById('nextPage').addEventListener('click', () => {
+    document.getElementById('nextPage')?.addEventListener('click', () => {
         if (hasMoreImages) {
             currentPage++;
-            loadUploads(currentPage);
+            loadUploads(currentPage, true);
         }
     });
 }

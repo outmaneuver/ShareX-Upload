@@ -805,12 +805,14 @@ input:checked + .slider:before {
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    margin-top: 1rem;
+    margin: 1rem 0;
     padding: 1rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .pagination button {
     padding: 0.5rem 1rem;
+    min-width: 100px;
 }
 
 .pagination button:disabled {
@@ -821,6 +823,19 @@ input:checked + .slider:before {
 .page-info {
     color: var(--text-primary);
     font-weight: 500;
+    min-width: 80px;
+    text-align: center;
+}
+
+.uploads-list {
+    min-height: 200px;
+    position: relative;
+}
+
+.no-uploads {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
 }
 
 .confirm-dialog {
