@@ -51,27 +51,19 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'login.html'));
-    }
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
 app.get('/register', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'register.html'));
-    }
+    res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
 app.get('/forgot-password', (req, res) => {
-    if (req.session.userId) {
-        res.redirect('/dashboard');
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
-    }
+    res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
+});
+
+app.get('/reset-password', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
 });
 
 // Protected routes
@@ -128,9 +120,4 @@ app.use((req, res) => {
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-});
-
-// Add this route to your existing index.js file
-app.get('/reset-password', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
 });
