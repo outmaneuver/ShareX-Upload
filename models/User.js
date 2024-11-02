@@ -35,9 +35,11 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Method to check if new password matches old password
-userSchema.methods.isSamePassword = async function(newPassword) {
-    return bcrypt.compare(newPassword, this.password);
+// Add this as a static method instead of an instance method
+userSchema.statics.isSamePassword = async function(userId, newPassword) {
+    const user = await this.findById(userId);
+    if (!user) return false;
+    return bcrypt.compare(newPassword, user.password);
 };
 
 export const User = mongoose.model('User', userSchema); 
