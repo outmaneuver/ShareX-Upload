@@ -136,8 +136,9 @@ async function deleteImage(imageId, filename) {
             credentials: 'include' // Important for session cookies
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const data = await response.json();
             throw new Error(data.message || 'Failed to delete image');
         }
 
@@ -150,7 +151,6 @@ async function deleteImage(imageId, filename) {
         showToast('Image deleted successfully', 'success');
         
         // Refresh the uploads list and statistics
-        currentPage = 1;
         await loadUploads(1);
         await loadStatistics();
     } catch (error) {

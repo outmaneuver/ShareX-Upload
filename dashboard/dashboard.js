@@ -177,7 +177,7 @@ router.get('/generate-config', isAuthenticated, async (req, res) => {
     }
 });
 
-// Add this route handler for image deletion
+// Update the delete route
 router.delete('/images/:id', isAuthenticated, async (req, res) => {
     try {
         const imageId = req.params.id;
@@ -197,10 +197,21 @@ router.delete('/images/:id', isAuthenticated, async (req, res) => {
 
         // Delete the file from filesystem
         try {
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = path.dirname(__filename);
-            const filePath = path.join(__dirname, '..', 'uploads', image.filename);
-            await fs.unlink(filePath);
+            // Construct the correct file path
+            const uploadDir = path.join(__dirname, '..', 'uploads');
+            const filePath = path.join(uploadDir, image.filename);
+            
+            // Check if file exists before attempting deletion
+            const fileExists = await fs.access(filePath)
+                .then(() => true)
+                .catch(() => false);
+
+            if (fileExists) {
+                await fs.unlink(filePath);
+                console.log(`File deleted successfully: ${filePath}`);
+            } else {
+                console.log(`File not found: ${filePath}`);
+            }
         } catch (err) {
             console.error('File deletion error:', err);
             // Continue even if file doesn't exist
