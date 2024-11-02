@@ -1,3 +1,89 @@
+// Validation functions
+function isValidUsername(username) {
+    return /^[a-zA-Z0-9_]{3,20}$/.test(username);
+}
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isStrongPassword(password) {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    return password.length >= minLength && hasUpperCase && hasLowerCase && 
+           hasNumbers && hasSpecialChar;
+}
+
+// Real-time validation feedback
+document.getElementById('username').addEventListener('input', function() {
+    const username = this.value;
+    const feedback = document.getElementById('username-feedback');
+    
+    if (!username) {
+        feedback.textContent = 'Username is required';
+        feedback.className = 'feedback-error';
+    } else if (!isValidUsername(username)) {
+        feedback.textContent = 'Username must be 3-20 characters long and contain only letters, numbers, and underscores';
+        feedback.className = 'feedback-error';
+    } else {
+        feedback.textContent = '✓';
+        feedback.className = 'feedback-success';
+    }
+});
+
+document.getElementById('email').addEventListener('input', function() {
+    const email = this.value;
+    const feedback = document.getElementById('email-feedback');
+    
+    if (!email) {
+        feedback.textContent = 'Email is required';
+        feedback.className = 'feedback-error';
+    } else if (!isValidEmail(email)) {
+        feedback.textContent = 'Please enter a valid email address';
+        feedback.className = 'feedback-error';
+    } else {
+        feedback.textContent = '✓';
+        feedback.className = 'feedback-success';
+    }
+});
+
+document.getElementById('password').addEventListener('input', function() {
+    const password = this.value;
+    const feedback = document.getElementById('password-feedback');
+    
+    if (!password) {
+        feedback.textContent = 'Password is required';
+        feedback.className = 'feedback-error';
+    } else if (!isStrongPassword(password)) {
+        feedback.textContent = 'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters';
+        feedback.className = 'feedback-error';
+    } else {
+        feedback.textContent = '✓';
+        feedback.className = 'feedback-success';
+    }
+});
+
+document.getElementById('confirmPassword').addEventListener('input', function() {
+    const confirmPassword = this.value;
+    const password = document.getElementById('password').value;
+    const feedback = document.getElementById('confirmPassword-feedback');
+    
+    if (!confirmPassword) {
+        feedback.textContent = 'Please confirm your password';
+        feedback.className = 'feedback-error';
+    } else if (confirmPassword !== password) {
+        feedback.textContent = 'Passwords do not match';
+        feedback.className = 'feedback-error';
+    } else {
+        feedback.textContent = '✓';
+        feedback.className = 'feedback-success';
+    }
+});
+
 async function register(event) {
     event.preventDefault();
     
@@ -6,8 +92,39 @@ async function register(event) {
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
+    // Clear previous errors
+    document.querySelectorAll('.feedback-error').forEach(el => {
+        el.textContent = '';
+    });
+
+    // Validate all fields
+    let hasErrors = false;
+    
+    if (!isValidUsername(username)) {
+        document.getElementById('username-feedback').textContent = 'Invalid username format';
+        document.getElementById('username-feedback').className = 'feedback-error';
+        hasErrors = true;
+    }
+    
+    if (!isValidEmail(email)) {
+        document.getElementById('email-feedback').textContent = 'Invalid email format';
+        document.getElementById('email-feedback').className = 'feedback-error';
+        hasErrors = true;
+    }
+    
+    if (!isStrongPassword(password)) {
+        document.getElementById('password-feedback').textContent = 'Password does not meet requirements';
+        document.getElementById('password-feedback').className = 'feedback-error';
+        hasErrors = true;
+    }
+    
     if (password !== confirmPassword) {
-        showToast('Passwords do not match', 'error');
+        document.getElementById('confirmPassword-feedback').textContent = 'Passwords do not match';
+        document.getElementById('confirmPassword-feedback').className = 'feedback-error';
+        hasErrors = true;
+    }
+
+    if (hasErrors) {
         return;
     }
 
@@ -20,7 +137,8 @@ async function register(event) {
             body: JSON.stringify({
                 username,
                 email,
-                password
+                password,
+                confirmPassword
             })
         });
 
@@ -38,4 +156,7 @@ async function register(event) {
         console.error('Registration error:', error);
         showToast(error.message || 'Error during registration', 'error');
     }
-} 
+}
+
+// Add event listener to form
+document.getElementById('registerForm').addEventListener('submit', register); 

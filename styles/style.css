@@ -917,57 +917,45 @@ input:checked + .slider:before {
     --bg-deleted: rgba(var(--danger-rgb), 0.1);
 }
 
-/* Validation feedback styles */
-.validation-feedback {
-    font-size: 0.8rem;
-    margin-top: 4px;
-    min-height: 20px;
-}
-
-.validation-feedback.error {
-    color: var(--error-color, #ff4444);
-}
-
-.validation-feedback.success {
-    color: var(--success-color, #00C851);
-}
-
-/* Form group spacing */
+/* Add these styles for form validation feedback */
 .form-group {
-    margin-bottom: 20px;
     position: relative;
+    margin-bottom: 1.5rem;
 }
 
-/* Toast notifications */
-.toast {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 12px 24px;
-    border-radius: 4px;
-    color: white;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 1000;
+.feedback {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
 }
 
-.toast.show {
-    opacity: 1;
+.feedback-error {
+    color: var(--error-color, #dc3545);
 }
 
-.toast-success {
-    background-color: var(--success-color, #00C851);
+.feedback-success {
+    color: var(--success-color, #28a745);
 }
 
-.toast-error {
-    background-color: var(--error-color, #ff4444);
+.input-help {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 12px;
+    color: var(--text-secondary);
 }
 
-/* Input validation states */
-.form-group input:invalid:not(:placeholder-shown) {
-    border-color: var(--error-color, #ff4444);
+/* Add visual feedback for input validation */
+.form-group input:invalid {
+    border-color: var(--error-color, #dc3545);
 }
 
-.form-group input:valid:not(:placeholder-shown) {
-    border-color: var(--success-color, #00C851);
+.form-group input:valid {
+    border-color: var(--success-color, #28a745);
+}
+
+/* Only show validation styles after user interaction */
+.form-group input:placeholder-shown {
+    border-color: var(--border-color);
 }
