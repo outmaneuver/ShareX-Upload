@@ -1,5 +1,10 @@
 import express from 'express';
-import { Upload } from '../config/config.js';
+import { Upload } from '../models/Upload.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -10,9 +15,13 @@ router.get('/:id', async (req, res) => {
             return res.status(404).send('Image not found');
         }
         
+        // Check if file exists
+        const filePath = path.join(__dirname, '..', upload.path);
         res.setHeader('Content-Type', upload.mimetype);
-        res.sendFile(upload.path);
+        res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for 1 year
+        res.sendFile(filePath);
     } catch (error) {
+        console.error('Error serving image:', error);
         res.status(500).send('Error serving image');
     }
 });
