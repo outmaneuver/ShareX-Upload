@@ -29,6 +29,7 @@ const PAGE_SIZE = 5;
 let currentPage = 1;
 let isLoading = false;
 let hasMoreImages = true;
+let showDeletedFiles = false; // New flag for deleted files
 
 // Utility function to check if file exists
 async function checkFileExists(filename) {
@@ -158,42 +159,40 @@ async function deleteImage(imageId, filename) {
 }
 
 // Load uploads with improved error handling
-async function loadUploads(page = 1) {
+async function loadUploads(page = 1, reset = false) {
     if (isLoading) return;
     
     try {
         isLoading = true;
-        const response = await fetch(`/dashboard/images?page=${page}&limit=${PAGE_SIZE}`);
+        const response = await fetch(`/dashboard/images?page=${page}&limit=${PAGE_SIZE}&showDeleted=${showDeletedFiles}`);
         if (!response.ok) throw new Error('Failed to fetch uploads');
         
         const data = await response.json();
         const uploadsContainer = document.getElementById('uploads');
         
-        // Clear existing pagination
-        const existingPagination = document.querySelector('.pagination');
-        if (existingPagination) {
-            existingPagination.remove();
+        if (reset) {
+            uploadsContainer.innerHTML = '';
         }
-        
-        // Clear uploads container
-        uploadsContainer.innerHTML = '';
 
         if (!data.data.images || data.data.images.length === 0) {
             hasMoreImages = false;
-            uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
+            if (page === 1) {
+                uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
+            }
             return;
         }
 
         for (const image of data.data.images) {
             const fileExists = await checkFileExists(image.filename);
             const uploadItem = document.createElement('div');
-            uploadItem.className = 'upload-item';
+            uploadItem.className = `upload-item ${image.deleted ? 'deleted-file' : ''}`;
             uploadItem.setAttribute('data-image-id', image._id);
             uploadItem.innerHTML = `
                 <div class="upload-info">
-                    <div class="upload-filename ${!fileExists ? 'missing-file' : ''}">
+                    <div class="upload-filename ${!fileExists ? 'missing-file' : ''} ${image.deleted ? 'deleted-file' : ''}">
                         <i class="fas fa-file"></i> ${image.filename}
                         ${!fileExists ? '<span class="missing-badge">File Missing</span>' : ''}
+                        ${image.deleted ? '<span class="deleted-badge">Deleted</span>' : ''}
                     </div>
                     <div class="upload-meta">
                         <span><i class="far fa-clock"></i> ${formatDate(image.createdAt)}</span>
@@ -201,7 +200,7 @@ async function loadUploads(page = 1) {
                     </div>
                 </div>
                 <div class="upload-actions">
-                    ${fileExists ? `
+                    ${fileExists && !image.deleted ? `
                         <button onclick="copyToClipboard('${image.filename}')" class="btn btn-secondary btn-sm" title="Copy URL">
                             <i class="fas fa-copy"></i>
                         </button>
@@ -441,4 +440,17 @@ function addPaginationControls() {
             loadUploads(currentPage);
         }
     });
+}
+
+// Add toggle for deleted files
+function toggleDeletedFiles() {
+    showDeletedFiles = !showDeletedFiles;
+    currentPage = 1;
+    loadUploads(1, true);
+    const toggleBtn = document.getElementById('toggleDeletedBtn');
+    if (toggleBtn) {
+        toggleBtn.innerHTML = showDeletedFiles ? 
+            '<i class="fas fa-eye-slash"></i> Hide Deleted Files' : 
+            '<i class="fas fa-eye"></i> Show Deleted Files';
+    }
 }

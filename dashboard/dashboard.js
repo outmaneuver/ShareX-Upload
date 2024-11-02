@@ -46,10 +46,19 @@ router.get('/images', isAuthenticated, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
+        const showDeleted = req.query.showDeleted === 'true';
         const skip = (page - 1) * limit;
 
+        // Build query based on showDeleted parameter
+        const query = { 
+            userId: req.session.userId
+        };
+        if (!showDeleted) {
+            query.deleted = { $ne: true };
+        }
+
         // Check if user has any uploads
-        const totalUploads = await Upload.countDocuments({ userId: req.session.userId });
+        const totalUploads = await Upload.countDocuments(query);
         
         if (totalUploads === 0) {
             return res.json({
@@ -61,7 +70,7 @@ router.get('/images', isAuthenticated, async (req, res) => {
             });
         }
 
-        const images = await Upload.find({ userId: req.session.userId })
+        const images = await Upload.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
@@ -195,30 +204,10 @@ router.delete('/images/:id', isAuthenticated, async (req, res) => {
             });
         }
 
-        // Delete the file from filesystem
-        try {
-            // Construct the correct file path
-            const uploadDir = path.join(__dirname, '..', 'uploads');
-            const filePath = path.join(uploadDir, image.filename);
-            
-            // Check if file exists before attempting deletion
-            const fileExists = await fs.access(filePath)
-                .then(() => true)
-                .catch(() => false);
-
-            if (fileExists) {
-                await fs.unlink(filePath);
-                console.log(`File deleted successfully: ${filePath}`);
-            } else {
-                console.log(`File not found: ${filePath}`);
-            }
-        } catch (err) {
-            console.error('File deletion error:', err);
-            // Continue even if file doesn't exist
-        }
-
-        // Delete the database record
-        await Upload.deleteOne({ _id: imageId });
+        // Soft delete by updating the record
+        image.deleted = true;
+        image.deletedAt = new Date();
+        await image.save();
 
         res.json({
             status: 'success',

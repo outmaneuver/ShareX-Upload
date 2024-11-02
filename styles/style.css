@@ -851,3 +851,46 @@ input:checked + .slider:before {
     gap: 1rem;
     margin-top: 1.5rem;
 }
+
+.deleted-file {
+    opacity: 0.7;
+}
+
+.deleted-badge {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    margin-left: 8px;
+}
+
+.toggle-deleted {
+    margin-bottom: 1rem;
+    text-align: right;
+}
+
+.upload-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+}
+
+.pagination button {
+    padding: 0.5rem 1rem;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
