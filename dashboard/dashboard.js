@@ -1,13 +1,12 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { User, Upload, SiteStatistic } from '../config/config.js';
 import path from 'path';
 import { isAuthenticated } from '../middleware/authMiddleware.js';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import fs from 'fs/promises';
-const profileInfoRouter = require('./profile/info');
 
 const router = express.Router();
 
@@ -277,7 +276,5 @@ router.delete('/images/:id', isAuthenticated, async (req, res) => {
         });
     }
 });
-
-router.use('/profile/info', profileInfoRouter);
 
 export default router;
