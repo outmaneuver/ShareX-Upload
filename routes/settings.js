@@ -4,6 +4,32 @@ import { isAuthenticated } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+router.get('/user', isAuthenticated, async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userId)
+            .select('email username file_name_length upload_password hide_user_info')
+            .lean();
+
+        if (!user) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'User not found'
+            });
+        }
+
+        res.json({
+            status: 'success',
+            data: user
+        });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error fetching user data'
+        });
+    }
+});
+
 router.post('/update', isAuthenticated, async (req, res) => {
     try {
         const { file_name_length, upload_password, hide_user_info } = req.body;
