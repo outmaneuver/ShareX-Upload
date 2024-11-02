@@ -1,4 +1,4 @@
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     // ... existing fields ...
     resetToken: String,
     resetTokenExpiry: Date

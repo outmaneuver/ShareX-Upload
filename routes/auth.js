@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const { User } = require('../config/config');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 router.post('/login', async (req, res) => {
     try {
@@ -96,12 +97,54 @@ router.post('/forgot-password', async (req, res) => {
         user.resetTokenExpiry = resetTokenExpiry;
         await user.save();
 
-        // Send email with reset link
-        // Note: You'll need to implement the email sending functionality
-        // This is just a placeholder
-        console.log(`Reset link: ${process.env.BASE_URL}/reset-password?token=${token}`);
+        // Create email transporter
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD // Use app-specific password
+            }
+        });
 
-        res.status(200).json({ message: 'If an account exists with this email, you will receive a password reset link shortly.' });
+        // Get the base URL from environment variables
+        const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+        const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
+        // Email template
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Password Reset Request - ShareX Upload',
+            html: `
+                <h1>Password Reset Request</h1>
+                <p>You requested a password reset for your ShareX Upload account.</p>
+                <p>Click the button below to reset your password. This link will expire in 1 hour.</p>
+                <a href="${resetLink}" style="
+                    background-color: #2196F3;
+                    color: white;
+                    padding: 12px 24px;
+                    text-decoration: none;
+                    border-radius: 4px;
+                    display: inline-block;
+                    margin: 16px 0;
+                ">Reset Password</a>
+                <p>If you didn't request this password reset, you can safely ignore this email.</p>
+                <p>For security reasons, this link will expire in 1 hour.</p>
+                <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                <p>${resetLink}</p>
+            `
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Email sending error:', error);
+                return res.status(500).json({ message: 'Failed to send password reset email' });
+            }
+            console.log('Password reset email sent:', info.response);
+            res.status(200).json({ message: 'If an account exists with this email, you will receive a password reset link shortly.' });
+        });
+
     } catch (error) {
         console.error('Forgot password error:', error);
         res.status(500).json({ message: 'An error occurred while processing your request' });
