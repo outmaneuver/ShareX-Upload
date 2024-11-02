@@ -189,7 +189,6 @@ async function loadUploads(page = 1, reset = false) {
         const data = await response.json();
         const uploadsContainer = document.getElementById('uploads');
         
-        // Always clear container when reset is true
         if (reset) {
             uploadsContainer.innerHTML = '';
         }
@@ -198,26 +197,20 @@ async function loadUploads(page = 1, reset = false) {
             hasMoreImages = false;
             if (page === 1) {
                 uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
-            } else if (data.data.images.length === 0) {
-                // If we're on a page with no images, go back one page
-                currentPage = Math.max(1, currentPage - 1);
-                await loadUploads(currentPage, true);
-                return;
             }
             addPaginationControls();
             return;
         }
 
         for (const image of data.data.images) {
-            const fileExists = await checkFileExists(image.filename);
             const uploadItem = document.createElement('div');
-            uploadItem.className = `upload-item ${image.deleted ? 'deleted-file' : ''}`;
+            uploadItem.className = `upload-item ${image.deleted || image.missing ? 'deleted-file' : ''}`;
             uploadItem.setAttribute('data-image-id', image._id);
             uploadItem.innerHTML = `
                 <div class="upload-info">
-                    <div class="upload-filename ${!fileExists ? 'missing-file' : ''} ${image.deleted ? 'deleted-file' : ''}">
+                    <div class="upload-filename">
                         <i class="fas fa-file"></i> ${image.filename}
-                        ${!fileExists ? '<span class="missing-badge">File Missing</span>' : ''}
+                        ${image.missing ? '<span class="missing-badge">File Missing</span>' : ''}
                         ${image.deleted ? '<span class="deleted-badge">Deleted</span>' : ''}
                     </div>
                     <div class="upload-meta">
@@ -226,7 +219,7 @@ async function loadUploads(page = 1, reset = false) {
                     </div>
                 </div>
                 <div class="upload-actions">
-                    ${fileExists && !image.deleted ? `
+                    ${!image.missing && !image.deleted ? `
                         <button onclick="copyToClipboard('${image.filename}')" class="btn btn-secondary btn-sm" title="Copy URL">
                             <i class="fas fa-copy"></i>
                         </button>

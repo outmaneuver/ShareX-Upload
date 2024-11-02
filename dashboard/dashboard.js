@@ -54,7 +54,10 @@ router.get('/images', isAuthenticated, async (req, res) => {
             userId: req.session.userId
         };
         if (!showDeleted) {
-            query.deleted = { $ne: true };
+            query.$and = [
+                { deleted: { $ne: true } },
+                { missing: { $ne: true } }
+            ];
         }
 
         // Check if user has any uploads
@@ -75,6 +78,19 @@ router.get('/images', isAuthenticated, async (req, res) => {
             .skip(skip)
             .limit(limit);
 
+        // Check if files exist on disk
+        for (let image of images) {
+            const filePath = path.join(__dirname, '..', 'uploads', image.filename);
+            try {
+                await fs.access(filePath);
+                image.missing = false;
+            } catch {
+                image.missing = true;
+                // Update the database if file is missing
+                await Upload.findByIdAndUpdate(image._id, { missing: true });
+            }
+        }
+
         const hasMore = totalUploads > skip + images.length;
 
         res.json({
@@ -93,7 +109,7 @@ router.get('/images', isAuthenticated, async (req, res) => {
     }
 });
 
-// Update the statistics route to handle deleted files
+// Update the statistics route to handle missing files
 router.get('/statistics', isAuthenticated, async (req, res) => {
     try {
         const stats = await Upload.aggregate([
@@ -104,18 +120,39 @@ router.get('/statistics', isAuthenticated, async (req, res) => {
                     totalUploads: { $sum: 1 },
                     totalActiveUploads: {
                         $sum: {
-                            $cond: [{ $eq: ["$deleted", true] }, 0, 1]
+                            $cond: [
+                                { $or: [
+                                    { $eq: ["$deleted", true] },
+                                    { $eq: ["$missing", true] }
+                                ]},
+                                0,
+                                1
+                            ]
                         }
                     },
                     totalDeletedUploads: {
                         $sum: {
-                            $cond: [{ $eq: ["$deleted", true] }, 1, 0]
+                            $cond: [
+                                { $or: [
+                                    { $eq: ["$deleted", true] },
+                                    { $eq: ["$missing", true] }
+                                ]},
+                                1,
+                                0
+                            ]
                         }
                     },
                     totalSize: { $sum: '$size' },
                     activeTotalSize: {
                         $sum: {
-                            $cond: [{ $eq: ["$deleted", true] }, 0, "$size"]
+                            $cond: [
+                                { $or: [
+                                    { $eq: ["$deleted", true] },
+                                    { $eq: ["$missing", true] }
+                                ]},
+                                0,
+                                "$size"
+                            ]
                         }
                     }
                 }

@@ -49,6 +49,7 @@ const uploadSchema = new mongoose.Schema({
   size: { type: Number, required: true },
   path: { type: String, required: true },
   deleted: { type: Boolean, default: false },
+  missing: { type: Boolean, default: false },
   deletedAt: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
