@@ -1,12 +1,10 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { User, Upload, SiteStatistic } from '../config/config.js';
+import { User } from '../models/User.js';
+import { Upload } from '../models/Upload.js';
 import path from 'path';
 import { isAuthenticated } from '../middleware/authMiddleware.js';
-import crypto from 'crypto';
-import { fileURLToPath } from 'url';
-import fs from 'fs/promises';
 
 const router = express.Router();
 

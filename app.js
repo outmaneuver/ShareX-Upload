@@ -1,9 +1,10 @@
-const express = require('express');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const path = require('path');
-const { connectDB } = require('./config/config');
-const { isAuthenticated } = require('./middleware/authMiddleware');
+import express from 'express';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
+import path from 'path';
+import { connectDB } from './config/config.js';
+import { User } from './models/User.js';
+import { isAuthenticated } from './middleware/authMiddleware.js';
 
 const app = express();
 
