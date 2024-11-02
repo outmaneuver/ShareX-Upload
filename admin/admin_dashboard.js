@@ -1,7 +1,7 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const { User, Announcement, SiteStatistic } = require('../config/config');
-const path = require('path');
+import express from 'express';
+import bcrypt from 'bcryptjs';  // Changed from bcrypt to bcryptjs
+import { User, Upload, SiteStatistic } from '../config/config.js';
+import { isAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -154,4 +154,4 @@ router.get('/', isAdmin, (req, res) => {
     res.sendFile(path.join(__dirname, '../public/admin_dashboard.html'));
 });
 
-module.exports = router;
+export default router;

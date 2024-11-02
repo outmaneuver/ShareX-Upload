@@ -1,7 +1,8 @@
-const express = require('express');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const { User, SiteStatistic } = require('../config/config');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+import { User, SiteStatistic } from '../config/config';
 
 const router = express.Router();
 
@@ -104,4 +105,4 @@ router.post('/update-password', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

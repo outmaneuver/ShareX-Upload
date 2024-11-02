@@ -1,7 +1,7 @@
-const express = require('express');
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
-const { User } = require('../config/config');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import { User } from '../config/config.js';
 
 const router = express.Router();
 
@@ -94,4 +94,4 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

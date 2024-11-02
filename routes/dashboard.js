@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import { User, Upload, SiteStatistic } from '../config/config.js';
+import { isAuthenticated } from '../middleware/authMiddleware.js';
+import mongoose from 'mongoose';
+
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const { User, Upload, SiteStatistic } = require('../config/config');
-const { isAuthenticated } = require('../middleware/authMiddleware');
-const mongoose = require('mongoose');
 
 // Your existing dashboard routes...
 
@@ -56,4 +57,4 @@ router.get('/statistics', isAuthenticated, async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router; 
