@@ -23,9 +23,9 @@ await connectDB();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Define __dirname before using it
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files - order matters!
 app.use('/styles', express.static(path.join(__dirname, 'styles')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration
 app.use(session({
