@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import { User } from '../config/config.js';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const { User } = require('../config/config');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 
 router.post('/login', async (req, res) => {
     try {
@@ -196,4 +197,4 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router; 

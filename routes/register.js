@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import { User } from '../config/config.js';
+
 const router = express.Router();
-const bcrypt = require('bcrypt');
-const { User } = require('../config/config');
 
 router.post('/', async (req, res) => {
     try {
@@ -45,4 +46,4 @@ router.post('/', async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router; 
