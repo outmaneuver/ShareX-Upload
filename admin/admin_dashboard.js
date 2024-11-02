@@ -1,7 +1,9 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import { User } from '../models/User.js';
-import { Announcement, SiteStatistic } from '../config/config.js';
+import { Upload } from '../models/Upload.js';
+import { Announcement } from '../models/Announcement.js';
+import { SiteStatistic } from '../models/SiteStatistic.js';
 import { isAdmin } from '../middleware/authMiddleware.js';
 import path from 'path';
 import { fileURLToPath } from 'url';

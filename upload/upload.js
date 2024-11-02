@@ -1,10 +1,15 @@
-const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const { User, Upload } = require('../config/config');
-const { isAuthenticated } = require('../middleware/authMiddleware');
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
+import { User } from '../models/User.js';
+import { Upload } from '../models/Upload.js';
+import { isAuthenticated } from '../middleware/authMiddleware.js';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -117,4 +122,4 @@ router.post('/', upload.single('image'), async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
