@@ -67,7 +67,7 @@ router.post('/logout', (req, res) => {
         res.json({
             status: 'success',
             message: 'Logged out successfully',
-            redirect: '/auth/login'
+            redirect: '/login'
         });
     });
 });

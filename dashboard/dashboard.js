@@ -230,7 +230,7 @@ router.get('/generate-config', isAuthenticated, async (req, res) => {
     }
 });
 
-// Update the delete route to soft delete
+// Update the delete route to actually delete files
 router.delete('/images/:id', isAuthenticated, async (req, res) => {
     try {
         const imageId = req.params.id;
@@ -248,7 +248,19 @@ router.delete('/images/:id', isAuthenticated, async (req, res) => {
             });
         }
 
-        // Soft delete by updating the record
+        // Delete the physical file
+        try {
+            const filePath = path.join(__dirname, '..', 'uploads', image.filename);
+            await fs.access(filePath); // Check if file exists
+            await fs.unlink(filePath); // Delete the file
+            console.log(`File deleted successfully: ${filePath}`);
+        } catch (err) {
+            console.error('File deletion error:', err);
+            // Continue even if file doesn't exist, but mark it as missing
+            image.missing = true;
+        }
+
+        // Update the database record
         image.deleted = true;
         image.deletedAt = new Date();
         await image.save();

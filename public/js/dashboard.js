@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeThemeSwitch();
 });
 
-// Add this function to handle logout
+// Update the logout function
 async function logout(e) {
     e.preventDefault();
     try {
@@ -372,7 +372,7 @@ async function logout(e) {
 
         const data = await response.json();
         if (response.ok) {
-            window.location.href = data.redirect || '/auth/login';
+            window.location.href = '/login';
         } else {
             showToast('Logout failed', 'error');
         }
