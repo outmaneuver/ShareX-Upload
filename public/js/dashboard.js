@@ -25,10 +25,8 @@ async function loadStatistics() {
 }
 
 // Load uploads with pagination
+const PAGE_SIZE = 5;
 let currentPage = 1;
-const PAGE_SIZE = 10;
-
-// Add these variables at the top
 let isLoading = false;
 let hasMoreImages = true;
 
@@ -161,7 +159,7 @@ async function deleteImage(imageId, filename) {
 
 // Load uploads with improved error handling
 async function loadUploads(page = 1) {
-    if (isLoading || !hasMoreImages) return;
+    if (isLoading) return;
     
     try {
         isLoading = true;
@@ -171,13 +169,18 @@ async function loadUploads(page = 1) {
         const data = await response.json();
         const uploadsContainer = document.getElementById('uploads');
         
-        if (page === 1) uploadsContainer.innerHTML = '';
+        // Clear existing pagination
+        const existingPagination = document.querySelector('.pagination');
+        if (existingPagination) {
+            existingPagination.remove();
+        }
+        
+        // Clear uploads container
+        uploadsContainer.innerHTML = '';
 
         if (!data.data.images || data.data.images.length === 0) {
             hasMoreImages = false;
-            if (page === 1) {
-                uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
-            }
+            uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
             return;
         }
 
@@ -215,6 +218,8 @@ async function loadUploads(page = 1) {
         }
 
         hasMoreImages = data.data.hasMore;
+        addPaginationControls();
+
     } catch (error) {
         console.error('Error loading uploads:', error);
         showToast('Failed to load uploads', 'error');
@@ -231,19 +236,41 @@ function loadMore() {
 
 // Confirmation dialog
 function showConfirmDialog(message) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         const dialog = document.createElement('div');
         dialog.className = 'confirm-dialog';
         dialog.innerHTML = `
             <div class="confirm-content">
                 <p>${message}</p>
                 <div class="confirm-actions">
-                    <button class="btn btn-secondary" onclick="this.closest('.confirm-dialog').remove(); resolve(false);">Cancel</button>
-                    <button class="btn btn-danger" onclick="this.closest('.confirm-dialog').remove(); resolve(true);">Delete</button>
+                    <button class="btn btn-secondary" onclick="this.closest('.confirm-dialog').remove(); window.dialogResolve(false);">Cancel</button>
+                    <button class="btn btn-danger" onclick="this.closest('.confirm-dialog').remove(); window.dialogResolve(true);">Delete</button>
                 </div>
             </div>
         `;
+        
+        // Store resolve function globally (temporary)
+        window.dialogResolve = resolve;
+        
         document.body.appendChild(dialog);
+        
+        // Add click outside to cancel
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) {
+                dialog.remove();
+                window.dialogResolve(false);
+            }
+        });
+        
+        // Add escape key to cancel
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                dialog.remove();
+                window.dialogResolve(false);
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
     });
 }
 
@@ -382,4 +409,36 @@ async function generateConfig() {
         console.error('Error generating config:', error);
         showToast('Failed to generate config file', 'error');
     }
+}
+
+// Add pagination UI to the dashboard
+function addPaginationControls() {
+    const paginationContainer = document.createElement('div');
+    paginationContainer.className = 'pagination';
+    paginationContainer.innerHTML = `
+        <button id="prevPage" class="btn btn-secondary" ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i> Previous
+        </button>
+        <span class="page-info">Page ${currentPage}</span>
+        <button id="nextPage" class="btn btn-secondary" ${!hasMoreImages ? 'disabled' : ''}>
+            Next <i class="fas fa-chevron-right"></i>
+        </button>
+    `;
+    
+    const uploadsContainer = document.getElementById('uploads');
+    uploadsContainer.parentNode.insertBefore(paginationContainer, uploadsContainer.nextSibling);
+    
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            loadUploads(currentPage);
+        }
+    });
+    
+    document.getElementById('nextPage').addEventListener('click', () => {
+        if (hasMoreImages) {
+            currentPage++;
+            loadUploads(currentPage);
+        }
+    });
 }
