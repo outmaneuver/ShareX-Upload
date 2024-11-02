@@ -15,7 +15,7 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async (
         
         if (response.ok) {
             alert('If an account exists with this email, you will receive a password reset link shortly.');
-            window.location.href = '/auth/login';
+            window.location.href = '/login';
         } else {
             alert(data.message || 'An error occurred');
         }
