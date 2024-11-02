@@ -17,11 +17,14 @@ async function checkForUpdates() {
         // Reset any local changes
         await execCommand('git reset --hard HEAD', projectDir);
         
+        // Set git pull strategy to rebase
+        await execCommand('git config pull.rebase false', projectDir);
+        
         // Fetch latest changes
         await execCommand('git fetch origin master', projectDir);
         
-        // Force pull latest changes
-        await execCommand('git pull origin master --force', projectDir);
+        // Force pull latest changes with merge strategy
+        await execCommand('git pull --no-rebase origin master', projectDir);
         
         // Restore .env file
         await execCommand('cp .env.backup .env || true', projectDir);
