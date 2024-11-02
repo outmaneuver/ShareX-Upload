@@ -152,16 +152,15 @@ router.post('/forgot-password', async (req, res) => {
     }
 });
 
-// Add this route to your existing auth.js file
+// Reset password route
 router.post('/reset-password', async (req, res) => {
-    const { token, password, confirmPassword } = req.body;
+    const { token, password } = req.body;
 
-    if (!token || !password || !confirmPassword) {
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-
-    if (password !== confirmPassword) {
-        return res.status(400).json({ message: 'Passwords do not match' });
+    if (!token || !password) {
+        return res.status(400).json({ 
+            status: 'error',
+            message: 'Missing required fields' 
+        });
     }
 
     try {
@@ -172,18 +171,22 @@ router.post('/reset-password', async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ 
+                status: 'error',
                 message: 'Invalid or expired password reset token' 
             });
         }
 
-        // Hash new password
+        // Hash new password with bcryptjs
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Update user's password and clear reset token
-        user.password = hashedPassword;
-        user.resetToken = undefined;
-        user.resetTokenExpiry = undefined;
-        await user.save();
+        // Update user document directly with the new password
+        await User.findByIdAndUpdate(user._id, {
+            $set: {
+                password: hashedPassword,
+                resetToken: undefined,
+                resetTokenExpiry: undefined
+            }
+        });
 
         res.json({ 
             status: 'success',
@@ -192,6 +195,7 @@ router.post('/reset-password', async (req, res) => {
     } catch (error) {
         console.error('Reset password error:', error);
         res.status(500).json({ 
+            status: 'error',
             message: 'An error occurred while resetting your password' 
         });
     }
