@@ -38,16 +38,16 @@
 
             <div class="card">
                 <h3>Upload Settings</h3>
-                <form id="uploadSettingsForm">
+                <form id="settingsForm">
                     <div class="form-group">
                         <label for="file_name_length">File Name Length</label>
                         <input type="number" id="file_name_length" name="file_name_length" min="5" max="32" required>
                     </div>
                     <div class="form-group">
                         <label for="upload_password">Upload Password</label>
-                        <div class="password-input-group">
-                            <input type="text" id="upload_password" name="upload_password" readonly>
-                            <button type="button" class="btn btn-secondary" onclick="generateUploadPassword()">
+                        <div class="input-group">
+                            <input type="text" id="upload_password" name="upload_password">
+                            <button type="button" id="generatePasswordBtn" class="btn btn-secondary">
                                 <i class="fas fa-sync"></i> Generate
                             </button>
                         </div>

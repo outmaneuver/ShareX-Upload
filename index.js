@@ -8,6 +8,7 @@ import { connectDB } from './config/config.js';
 import { isAuthenticated } from './middleware/authMiddleware.js';
 import dashboardRouter from './dashboard/dashboard.js';
 import { fileURLToPath } from 'url';
+import settingsRouter from './routes/settings.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -88,7 +89,7 @@ const uploadRouter = (await import('./routes/upload.js')).default;
 
 app.use('/auth', authRouter);
 app.use('/dashboard', dashboardRouter);
-app.use('/settings', isAuthenticated, settingsRouter);
+app.use('/settings', settingsRouter);
 app.use('/i', imagesRouter);
 app.use('/register', registerRouter);
 app.use('/api/upload', uploadRouter);

@@ -61,9 +61,13 @@ async function saveSettings(e) {
             body: JSON.stringify(data)
         });
         
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
         
-        if (response.ok && result.status === 'success') {
+        if (result.status === 'success') {
             showToast('Settings updated successfully', 'success');
         } else {
             throw new Error(result.message || 'Failed to update settings');
@@ -77,7 +81,8 @@ async function saveSettings(e) {
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     loadUserData();
-    document.getElementById('uploadSettingsForm').addEventListener('submit', saveSettings);
+    document.getElementById('generatePasswordBtn').addEventListener('click', generateUploadPassword);
+    document.getElementById('settingsForm').addEventListener('submit', saveSettings);
 });
 
 // Add toast notification function if not present
