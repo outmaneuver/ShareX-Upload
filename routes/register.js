@@ -5,29 +5,11 @@ const { User } = require('../config/config');
 
 router.post('/', async (req, res) => {
     try {
-        const { username, email, password, confirmPassword } = req.body;
-
-        // Validate input
-        if (!username || !email || !password || !confirmPassword) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'All fields are required'
-            });
-        }
-
-        if (password !== confirmPassword) {
-            return res.status(400).json({
-                status: 'error',
-                message: 'Passwords do not match'
-            });
-        }
+        const { username, email, password } = req.body;
 
         // Check if user already exists
-        const existingUser = await User.findOne({
-            $or: [
-                { username: username },
-                { email: email }
-            ]
+        const existingUser = await User.findOne({ 
+            $or: [{ email }, { username }] 
         });
 
         if (existingUser) {
@@ -49,21 +31,16 @@ router.post('/', async (req, res) => {
 
         await user.save();
 
-        // Set user session
-        req.session.userId = user._id;
-        req.session.username = user.username;
-
         res.json({
             status: 'success',
             message: 'Registration successful',
-            redirect: '/dashboard'
+            redirect: '/login'
         });
-
     } catch (error) {
         console.error('Registration error:', error);
         res.status(500).json({
             status: 'error',
-            message: 'An error occurred during registration'
+            message: 'Error during registration'
         });
     }
 });
