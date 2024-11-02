@@ -42,15 +42,53 @@ app.use(session({
 }));
 
 // Import routes
-const authRouter = (await import('./routes/auth.js')).default;
-const dashboardRouter = (await import('./dashboard/dashboard.js')).default;
-const settingsRouter = (await import('./routes/settings.js')).default;
-const imagesRouter = (await import('./routes/images.js')).default;
-const registerRouter = (await import('./routes/register.js')).default;
-const uploadRouter = (await import('./routes/upload.js')).default;
-const adminRouter = (await import('./admin/admin_dashboard.js')).default;
-const forgotPasswordRouter = (await import('./forgot_password/forgot_password.js')).default;
-const resetPasswordRouter = (await import('./reset_password/reset_password.js')).default;
+const routes = await Promise.all([
+    import('./routes/auth.js'),
+    import('./dashboard/dashboard.js'),
+    import('./routes/settings.js'),
+    import('./routes/images.js'),
+    import('./routes/register.js'),
+    import('./routes/upload.js'),
+    import('./admin/admin_dashboard.js'),
+    import('./forgot_password/forgot_password.js'),
+    import('./reset_password/reset_password.js')
+]).catch(error => {
+    console.error('Error importing routes:', error);
+    process.exit(1);
+});
+
+const [
+    authRouter,
+    dashboardRouter,
+    settingsRouter,
+    imagesRouter,
+    registerRouter,
+    uploadRouter,
+    adminRouter,
+    forgotPasswordRouter,
+    resetPasswordRouter
+] = routes.map(route => route.default);
+
+// Verify all routes are properly imported
+const routeChecks = {
+    auth: authRouter,
+    dashboard: dashboardRouter,
+    settings: settingsRouter,
+    images: imagesRouter,
+    register: registerRouter,
+    upload: uploadRouter,
+    admin: adminRouter,
+    forgotPassword: forgotPasswordRouter,
+    resetPassword: resetPasswordRouter
+};
+
+// Check for undefined routes
+Object.entries(routeChecks).forEach(([name, router]) => {
+    if (!router) {
+        console.error(`Error: ${name} router is undefined`);
+        process.exit(1);
+    }
+});
 
 // Use routes
 app.use('/auth', authRouter);
