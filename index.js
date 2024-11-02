@@ -48,7 +48,7 @@ const routes = await Promise.all([
     import('./routes/settings.js'),
     import('./routes/images.js'),
     import('./routes/register.js'),
-    import('./routes/upload.js'),
+    import('./upload/upload.js'),
     import('./admin/admin_dashboard.js'),
     import('./forgot_password/forgot_password.js'),
     import('./reset_password/reset_password.js')
