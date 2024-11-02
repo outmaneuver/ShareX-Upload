@@ -35,4 +35,9 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
+// Method to check if new password matches old password
+userSchema.methods.isSamePassword = async function(newPassword) {
+    return bcrypt.compare(newPassword, this.password);
+};
+
 export const User = mongoose.model('User', userSchema); 
