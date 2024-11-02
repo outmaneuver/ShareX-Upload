@@ -177,26 +177,34 @@ router.post('/reset-password', async (req, res) => {
             });
         }
 
-        // Check if new password is same as old password
-        const isSamePassword = await user.isSamePassword(password);
-        if (isSamePassword) {
-            return res.status(400).json({
+        try {
+            // Check if new password is same as old password
+            const isSamePassword = await user.isSamePassword(password);
+            if (isSamePassword) {
+                return res.status(400).json({
+                    status: 'error',
+                    message: 'New password must be different from your current password'
+                });
+            }
+
+            // Update user's password
+            user.password = password; // Will be hashed by pre-save middleware
+            user.resetToken = undefined;
+            user.resetTokenExpiry = undefined;
+            
+            await user.save(); // This will trigger the pre-save middleware
+
+            res.json({ 
+                status: 'success',
+                message: 'Password has been reset successfully' 
+            });
+        } catch (error) {
+            console.error('Password comparison error:', error);
+            res.status(500).json({ 
                 status: 'error',
-                message: 'New password must be different from your current password'
+                message: 'An error occurred while processing your password' 
             });
         }
-
-        // Update user's password
-        user.password = password; // Will be hashed by pre-save middleware
-        user.resetToken = undefined;
-        user.resetTokenExpiry = undefined;
-        
-        await user.save(); // This will trigger the pre-save middleware
-
-        res.json({ 
-            status: 'success',
-            message: 'Password has been reset successfully' 
-        });
     } catch (error) {
         console.error('Reset password error:', error);
         res.status(500).json({ 

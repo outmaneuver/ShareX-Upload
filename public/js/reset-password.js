@@ -115,21 +115,20 @@ document.getElementById('resetPasswordForm').addEventListener('submit', async (e
             },
             body: JSON.stringify({
                 token,
-                password,
-                confirmPassword
+                password
             })
         });
 
         const data = await response.json();
 
-        if (response.ok) {
-            showToast('Password reset successful', 'success');
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 1500);
-        } else {
+        if (!response.ok) {
             throw new Error(data.message || 'Password reset failed');
         }
+
+        showToast('Password reset successful', 'success');
+        setTimeout(() => {
+            window.location.href = '/login';
+        }, 1500);
     } catch (error) {
         console.error('Reset password error:', error);
         showToast(error.message || 'Error resetting password', 'error');
