@@ -53,8 +53,28 @@ async function copyToClipboard(filename) {
         }
 
         const url = `${window.location.origin}/uploads/${filename}`;
-        await navigator.clipboard.writeText(url);
-        showToast('URL copied to clipboard');
+        // Use modern clipboard API with fallback
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(url);
+        } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                textArea.remove();
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+                textArea.remove();
+                throw new Error('Failed to copy URL');
+            }
+        }
+        showToast('URL copied to clipboard', 'success');
     } catch (error) {
         console.error('Error copying to clipboard:', error);
         showToast('Failed to copy URL', 'error');
@@ -108,18 +128,12 @@ async function deleteImage(imageId, filename) {
         const confirmed = await showConfirmDialog('Are you sure you want to delete this image?');
         if (!confirmed) return;
 
-        // First check if file exists
-        const fileExists = await checkFileExists(filename);
-        if (!fileExists) {
-            showToast('Image file not found on server', 'error');
-            // Proceed with database cleanup even if file is missing
-        }
-
         const response = await fetch(`/dashboard/images/${imageId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include' // Important for session cookies
         });
 
         if (!response.ok) {
@@ -127,9 +141,16 @@ async function deleteImage(imageId, filename) {
             throw new Error(data.message || 'Failed to delete image');
         }
 
-        showToast('Image deleted successfully');
+        // Remove the image element from the DOM
+        const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+        if (imageElement) {
+            imageElement.remove();
+        }
+
+        showToast('Image deleted successfully', 'success');
+        
+        // Refresh the uploads list and statistics
         currentPage = 1;
-        hasMoreImages = true;
         await loadUploads(1);
         await loadStatistics();
     } catch (error) {
@@ -160,11 +181,11 @@ async function loadUploads(page = 1) {
             return;
         }
 
-        // Check each image file existence
         for (const image of data.data.images) {
             const fileExists = await checkFileExists(image.filename);
             const uploadItem = document.createElement('div');
             uploadItem.className = 'upload-item';
+            uploadItem.setAttribute('data-image-id', image._id);
             uploadItem.innerHTML = `
                 <div class="upload-info">
                     <div class="upload-filename ${!fileExists ? 'missing-file' : ''}">

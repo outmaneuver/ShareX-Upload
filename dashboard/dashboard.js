@@ -175,6 +175,47 @@ router.get('/generate-config', isAuthenticated, async (req, res) => {
     }
 });
 
+// Add this route handler for image deletion
+router.delete('/images/:id', isAuthenticated, async (req, res) => {
+    try {
+        const imageId = req.params.id;
+        const userId = req.session.userId;
+
+        // Find the image and verify ownership
+        const image = await Upload.findOne({ _id: imageId, userId });
+        
+        if (!image) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Image not found or unauthorized'
+            });
+        }
+
+        // Delete the file from the filesystem
+        const fs = await import('fs/promises');
+        try {
+            await fs.unlink(image.path);
+        } catch (err) {
+            console.error('File deletion error:', err);
+            // Continue even if file doesn't exist
+        }
+
+        // Delete the database record
+        await Upload.deleteOne({ _id: imageId });
+
+        res.json({
+            status: 'success',
+            message: 'Image deleted successfully'
+        });
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        res.status(500).json({
+            status: 'error',
+            message: 'Error deleting image'
+        });
+    }
+});
+
 router.use('/profile/info', profileInfoRouter);
 
 export default router;
