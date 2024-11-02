@@ -5,6 +5,8 @@ import { User, Upload, SiteStatistic } from '../config/config.js';
 import path from 'path';
 import { isAuthenticated } from '../middleware/authMiddleware.js';
 import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
 const profileInfoRouter = require('./profile/info');
 
 const router = express.Router();
@@ -179,11 +181,13 @@ router.get('/generate-config', isAuthenticated, async (req, res) => {
 router.delete('/images/:id', isAuthenticated, async (req, res) => {
     try {
         const imageId = req.params.id;
-        const userId = req.session.userId;
-
-        // Find the image and verify ownership
-        const image = await Upload.findOne({ _id: imageId, userId });
         
+        // Find the image and verify ownership
+        const image = await Upload.findOne({ 
+            _id: imageId, 
+            userId: req.session.userId 
+        });
+
         if (!image) {
             return res.status(404).json({
                 status: 'error',
@@ -191,10 +195,12 @@ router.delete('/images/:id', isAuthenticated, async (req, res) => {
             });
         }
 
-        // Delete the file from the filesystem
-        const fs = await import('fs/promises');
+        // Delete the file from filesystem
         try {
-            await fs.unlink(image.path);
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = path.dirname(__filename);
+            const filePath = path.join(__dirname, '..', 'uploads', image.filename);
+            await fs.unlink(filePath);
         } catch (err) {
             console.error('File deletion error:', err);
             // Continue even if file doesn't exist
