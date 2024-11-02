@@ -78,6 +78,7 @@ app.use('/dashboard', dashboardRouter);
 app.use('/settings', isAuthenticated, require('./routes/settings'));
 app.use('/i', require('./routes/images'));
 app.use('/register', require('./routes/register'));
+app.use('/api/upload', require('./routes/upload'));
 
 // Error handling
 app.use((err, req, res, next) => {

@@ -151,13 +151,15 @@ router.get('/generate-config', isAuthenticated, async (req, res) => {
             Name: `${user.username}'s Config`,
             DestinationType: "ImageUploader",
             RequestMethod: "POST",
-            RequestURL: `${domain}/upload`,
+            RequestURL: `${domain}/api/upload`,
             Headers: {
                 "Authorization": user.upload_password
             },
             Body: "MultipartFormData",
             FileFormName: "image",
             URL: "$json:url$",
+            ThumbnailURL: "",
+            DeletionURL: "",
             ErrorMessage: "$json:message$"
         };
 

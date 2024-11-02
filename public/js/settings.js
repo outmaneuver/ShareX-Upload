@@ -2,19 +2,24 @@
 async function loadUserData() {
     try {
         const response = await fetch('/settings/user');
-        if (!response.ok) throw new Error('Failed to fetch user data');
+        if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+        }
         
-        const { data } = await response.json();
+        const { status, data } = await response.json();
         
-        // Display user info
-        document.getElementById('userEmail').textContent = data.email || 'Not set';
-        document.getElementById('username').textContent = data.username || 'Not set';
-        
-        // Set form values
-        document.getElementById('file_name_length').value = data.file_name_length || 10;
-        document.getElementById('upload_password').value = data.upload_password || '';
-        document.getElementById('hide_user_info').checked = data.hide_user_info || false;
-        
+        if (status === 'success' && data) {
+            // Display user info
+            document.getElementById('userEmail').textContent = data.email || 'Not set';
+            document.getElementById('username').textContent = data.username || 'Not set';
+            
+            // Set form values
+            document.getElementById('file_name_length').value = data.file_name_length || 10;
+            document.getElementById('upload_password').value = data.upload_password || '';
+            document.getElementById('hide_user_info').checked = data.hide_user_info || false;
+        } else {
+            throw new Error('Invalid response data');
+        }
     } catch (error) {
         console.error('Error loading user data:', error);
         showToast('Error loading user data', 'error');
@@ -52,52 +57,26 @@ async function saveSettings(e) {
             body: JSON.stringify(data)
         });
         
-        if (response.ok) {
-            showToast('Settings updated successfully');
+        const result = await response.json();
+        
+        if (response.ok && result.status === 'success') {
+            showToast('Settings updated successfully', 'success');
         } else {
-            throw new Error('Failed to update settings');
+            throw new Error(result.message || 'Failed to update settings');
         }
     } catch (error) {
-        showToast('Error updating settings', 'error');
+        console.error('Error updating settings:', error);
+        showToast(error.message || 'Error updating settings', 'error');
     }
 }
 
-// Handle password change
-async function changePassword(e) {
-    e.preventDefault();
-    
-    const currentPassword = document.getElementById('currentPassword').value;
-    const newPassword = document.getElementById('newPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    
-    if (newPassword !== confirmPassword) {
-        showToast('New passwords do not match', 'error');
-        return;
-    }
-    
-    try {
-        const response = await fetch('/settings/change-password', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ currentPassword, newPassword })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            showToast('Password updated successfully');
-            e.target.reset();
-        } else {
-            showToast(data.message, 'error');
-        }
-    } catch (error) {
-        showToast('Error updating password', 'error');
-    }
-}
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    loadUserData();
+    document.getElementById('uploadSettingsForm').addEventListener('submit', saveSettings);
+});
 
-// Toast notification
+// Add toast notification function if not present
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
@@ -111,13 +90,4 @@ function showToast(message, type = 'success') {
             setTimeout(() => toast.remove(), 300);
         }, 3000);
     }, 100);
-}
-
-// Initialize page
-document.addEventListener('DOMContentLoaded', () => {
-    loadUserData();
-    
-    // Add form submit handlers
-    document.getElementById('uploadSettingsForm').addEventListener('submit', saveSettings);
-    document.getElementById('passwordForm').addEventListener('submit', changePassword);
-}); 
+} 
