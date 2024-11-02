@@ -121,28 +121,39 @@ router.get('/statistics', isAuthenticated, async (req, res) => {
     }
 });
 
-// Add config generation route
+// Update the generate-config route
 router.get('/generate-config', isAuthenticated, async (req, res) => {
     try {
-        const fileNameLength = req.user.file_name_length || 10;
+        const user = await User.findById(req.session.userId)
+            .select('username file_name_length upload_password')
+            .lean();
+
+        if (!user) {
+            return res.status(404).json({ 
+                status: 'error',
+                message: 'User not found' 
+            });
+        }
+
+        const fileNameLength = user.file_name_length || 10;
         const generateFileName = () => crypto.randomBytes(fileNameLength).toString('hex');
 
-        if (!req.user.upload_password) {
+        if (!user.upload_password) {
             const upload_password = crypto.randomBytes(32).toString('hex');
-            await User.findByIdAndUpdate(req.user._id, { upload_password });
-            req.user.upload_password = upload_password;
+            await User.findByIdAndUpdate(req.session.userId, { upload_password });
+            user.upload_password = upload_password;
         }
 
         const domain = `${req.protocol}://${req.get('host')}`;
         
         const config = {
             Version: "13.0.1",
-            Name: `${req.user.username}'s Config`,
+            Name: `${user.username}'s Config`,
             DestinationType: "ImageUploader",
             RequestMethod: "POST",
             RequestURL: `${domain}/upload`,
             Headers: {
-                "Authorization": req.user.upload_password
+                "Authorization": user.upload_password
             },
             Body: "MultipartFormData",
             FileFormName: "image",
@@ -150,11 +161,15 @@ router.get('/generate-config', isAuthenticated, async (req, res) => {
             ErrorMessage: "$json:message$"
         };
 
-        res.setHeader('Content-Disposition', `attachment; filename=${req.user.username}-sharex-config.sxcu`);
+        res.setHeader('Content-Disposition', `attachment; filename=${user.username}-sharex-config.sxcu`);
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(config, null, 2));
     } catch (error) {
-        res.status(500).json({ message: 'Error generating config', error });
+        console.error('Error generating config:', error);
+        res.status(500).json({ 
+            status: 'error',
+            message: 'Error generating config file' 
+        });
     }
 });
 
