@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { User } from '../../config/config.js';
+import { isAuthenticated } from '../../middleware/authMiddleware.js';
+
 const router = express.Router();
-const { User } = require('../../config/config');
-const { isAuthenticated } = require('../../middleware/authMiddleware');
 
 // Route to get user profile info
 router.get('/', isAuthenticated, async (req, res) => {
@@ -30,4 +31,4 @@ router.get('/', isAuthenticated, async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router; 

@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import { Upload } from '../config/config.js';
+
 const router = express.Router();
-const { Upload } = require('../config/config');
 
 router.get('/:id', async (req, res) => {
     try {
@@ -16,4 +17,4 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-module.exports = router; 
+export default router; 

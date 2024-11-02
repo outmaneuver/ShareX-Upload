@@ -1,11 +1,13 @@
-const mongoose = require('mongoose');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Set strictQuery to true to suppress the warning
 mongoose.set('strictQuery', true);
 
 // MongoDB connection config
-const connectDB = async () => {
+export const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/sharex-upload', {
       useNewUrlParser: true,
@@ -24,9 +26,4 @@ const announcementSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-const Announcement = mongoose.model('Announcement', announcementSchema);
-
-module.exports = {
-  connectDB,
-  Announcement
-};
+export const Announcement = mongoose.model('Announcement', announcementSchema);

@@ -6,7 +6,6 @@ import bodyParser from 'body-parser';
 import path from 'path';
 import { connectDB } from './config/config.js';
 import { isAuthenticated } from './middleware/authMiddleware.js';
-import dashboardRouter from './dashboard/dashboard.js';
 import { fileURLToPath } from 'url';
 
 const app = express();
