@@ -959,3 +959,58 @@ input:checked + .slider:before {
 .form-group input:placeholder-shown {
     border-color: var(--border-color);
 }
+
+/* Add these styles for toast notifications */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.toast-success {
+    background-color: var(--success-color);
+}
+
+.toast-error {
+    background-color: var(--danger-color);
+}
+
+/* Update form validation styles */
+.form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-primary);
+    transition: border-color 0.3s ease;
+}
+
+.form-group input.input-error {
+    border-color: var(--danger-color);
+}
+
+.form-group input.input-success {
+    border-color: var(--success-color);
+}
+
+.feedback {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.feedback-error {
+    color: var(--danger-color);
+}

@@ -18,52 +18,80 @@ function isStrongPassword(password) {
            hasNumbers && hasSpecialChar;
 }
 
+// Toast notification system
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }, 100);
+}
+
 // Real-time validation feedback
 document.getElementById('username').addEventListener('input', function() {
     const username = this.value;
     const feedback = document.getElementById('username-feedback');
+    const input = this;
     
     if (!username) {
         feedback.textContent = 'Username is required';
         feedback.className = 'feedback-error';
+        input.className = '';
     } else if (!isValidUsername(username)) {
         feedback.textContent = 'Username must be 3-20 characters long and contain only letters, numbers, and underscores';
         feedback.className = 'feedback-error';
+        input.className = 'input-error';
     } else {
-        feedback.textContent = '✓';
-        feedback.className = 'feedback-success';
+        feedback.textContent = '';
+        feedback.className = '';
+        input.className = 'input-success';
     }
 });
 
 document.getElementById('email').addEventListener('input', function() {
     const email = this.value;
     const feedback = document.getElementById('email-feedback');
+    const input = this;
     
     if (!email) {
         feedback.textContent = 'Email is required';
         feedback.className = 'feedback-error';
+        input.className = '';
     } else if (!isValidEmail(email)) {
         feedback.textContent = 'Please enter a valid email address';
         feedback.className = 'feedback-error';
+        input.className = 'input-error';
     } else {
-        feedback.textContent = '✓';
-        feedback.className = 'feedback-success';
+        feedback.textContent = '';
+        feedback.className = '';
+        input.className = 'input-success';
     }
 });
 
 document.getElementById('password').addEventListener('input', function() {
     const password = this.value;
     const feedback = document.getElementById('password-feedback');
+    const input = this;
     
     if (!password) {
         feedback.textContent = 'Password is required';
         feedback.className = 'feedback-error';
+        input.className = '';
     } else if (!isStrongPassword(password)) {
         feedback.textContent = 'Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters';
         feedback.className = 'feedback-error';
+        input.className = 'input-error';
     } else {
-        feedback.textContent = '✓';
-        feedback.className = 'feedback-success';
+        feedback.textContent = '';
+        feedback.className = '';
+        input.className = 'input-success';
     }
 });
 
@@ -71,16 +99,20 @@ document.getElementById('confirmPassword').addEventListener('input', function() 
     const confirmPassword = this.value;
     const password = document.getElementById('password').value;
     const feedback = document.getElementById('confirmPassword-feedback');
+    const input = this;
     
     if (!confirmPassword) {
         feedback.textContent = 'Please confirm your password';
         feedback.className = 'feedback-error';
+        input.className = '';
     } else if (confirmPassword !== password) {
         feedback.textContent = 'Passwords do not match';
         feedback.className = 'feedback-error';
+        input.className = 'input-error';
     } else {
-        feedback.textContent = '✓';
-        feedback.className = 'feedback-success';
+        feedback.textContent = '';
+        feedback.className = '';
+        input.className = 'input-success';
     }
 });
 
