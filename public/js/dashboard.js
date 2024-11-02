@@ -32,6 +32,113 @@ const PAGE_SIZE = 10;
 let isLoading = false;
 let hasMoreImages = true;
 
+// Utility function to check if file exists
+async function checkFileExists(filename) {
+    try {
+        const response = await fetch(`/uploads/${filename}`, { method: 'HEAD' });
+        return response.ok;
+    } catch (error) {
+        return false;
+    }
+}
+
+// Copy URL to clipboard
+async function copyToClipboard(filename) {
+    try {
+        // First check if file exists
+        const fileExists = await checkFileExists(filename);
+        if (!fileExists) {
+            showToast('Image file not found on server', 'error');
+            return;
+        }
+
+        const url = `${window.location.origin}/uploads/${filename}`;
+        await navigator.clipboard.writeText(url);
+        showToast('URL copied to clipboard');
+    } catch (error) {
+        console.error('Error copying to clipboard:', error);
+        showToast('Failed to copy URL', 'error');
+    }
+}
+
+// View image with modal
+async function viewImage(filename, mimetype) {
+    try {
+        // First check if file exists
+        const fileExists = await checkFileExists(filename);
+        if (!fileExists) {
+            showToast('Image file not found on server', 'error');
+            return;
+        }
+
+        const modal = document.createElement('div');
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <img src="/uploads/${filename}" alt="${filename}" 
+                    onerror="this.onerror=null; showToast('Failed to load image', 'error'); document.querySelector('.image-modal').remove();">
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Close modal when clicking outside or on close button
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal || e.target.className === 'close-modal') {
+                modal.remove();
+            }
+        });
+
+        // Add keyboard support for closing modal
+        document.addEventListener('keydown', function closeOnEscape(e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', closeOnEscape);
+            }
+        });
+    } catch (error) {
+        console.error('Error viewing image:', error);
+        showToast('Failed to view image', 'error');
+    }
+}
+
+// Delete image with confirmation and checks
+async function deleteImage(imageId, filename) {
+    try {
+        const confirmed = await showConfirmDialog('Are you sure you want to delete this image?');
+        if (!confirmed) return;
+
+        // First check if file exists
+        const fileExists = await checkFileExists(filename);
+        if (!fileExists) {
+            showToast('Image file not found on server', 'error');
+            // Proceed with database cleanup even if file is missing
+        }
+
+        const response = await fetch(`/dashboard/images/${imageId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Failed to delete image');
+        }
+
+        showToast('Image deleted successfully');
+        currentPage = 1;
+        hasMoreImages = true;
+        await loadUploads(1);
+        await loadStatistics();
+    } catch (error) {
+        console.error('Error deleting image:', error);
+        showToast(error.message || 'Failed to delete image', 'error');
+    }
+}
+
+// Load uploads with improved error handling
 async function loadUploads(page = 1) {
     if (isLoading || !hasMoreImages) return;
     
@@ -39,12 +146,13 @@ async function loadUploads(page = 1) {
         isLoading = true;
         const response = await fetch(`/dashboard/images?page=${page}&limit=${PAGE_SIZE}`);
         if (!response.ok) throw new Error('Failed to fetch uploads');
-        const data = await response.json();
         
+        const data = await response.json();
         const uploadsContainer = document.getElementById('uploads');
+        
         if (page === 1) uploadsContainer.innerHTML = '';
 
-        if (data.data.images.length === 0) {
+        if (!data.data.images || data.data.images.length === 0) {
             hasMoreImages = false;
             if (page === 1) {
                 uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
@@ -52,13 +160,16 @@ async function loadUploads(page = 1) {
             return;
         }
 
-        data.data.images.forEach(image => {
+        // Check each image file existence
+        for (const image of data.data.images) {
+            const fileExists = await checkFileExists(image.filename);
             const uploadItem = document.createElement('div');
             uploadItem.className = 'upload-item';
             uploadItem.innerHTML = `
-                <div class="upload-info" onclick="viewImage('${image.filename}', '${image.mimetype}')">
-                    <div class="upload-filename">
+                <div class="upload-info">
+                    <div class="upload-filename ${!fileExists ? 'missing-file' : ''}">
                         <i class="fas fa-file"></i> ${image.filename}
+                        ${!fileExists ? '<span class="missing-badge">File Missing</span>' : ''}
                     </div>
                     <div class="upload-meta">
                         <span><i class="far fa-clock"></i> ${formatDate(image.createdAt)}</span>
@@ -66,22 +177,23 @@ async function loadUploads(page = 1) {
                     </div>
                 </div>
                 <div class="upload-actions">
-                    <button onclick="copyToClipboard('${image.filename}')" class="btn btn-secondary btn-sm" title="Copy URL">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                    <button onclick="viewImage('${image.filename}', '${image.mimetype}')" class="btn btn-secondary btn-sm" title="View Image">
-                        <i class="fas fa-eye"></i>
-                    </button>
+                    ${fileExists ? `
+                        <button onclick="copyToClipboard('${image.filename}')" class="btn btn-secondary btn-sm" title="Copy URL">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button onclick="viewImage('${image.filename}', '${image.mimetype}')" class="btn btn-secondary btn-sm" title="View Image">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    ` : ''}
                     <button onclick="deleteImage('${image._id}', '${image.filename}')" class="btn btn-danger btn-sm" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             `;
             uploadsContainer.appendChild(uploadItem);
-        });
+        }
 
         hasMoreImages = data.data.hasMore;
-        
     } catch (error) {
         console.error('Error loading uploads:', error);
         showToast('Failed to load uploads', 'error');
@@ -94,39 +206,6 @@ async function loadUploads(page = 1) {
 function loadMore() {
     currentPage++;
     loadUploads(currentPage);
-}
-
-// Delete image with confirmation
-async function deleteImage(imageId, filename) {
-    try {
-        const confirmed = await showConfirmDialog('Are you sure you want to delete this image?');
-        if (!confirmed) return;
-        
-        // First check if file exists
-        const checkResponse = await fetch(`/uploads/${filename}`, { method: 'HEAD' });
-        if (checkResponse.status === 404) {
-            showToast('Image file not found on server', 'error');
-            return;
-        }
-        
-        const response = await fetch(`/dashboard/images/${imageId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (!response.ok) throw new Error('Failed to delete image');
-        
-        showToast('Image deleted successfully');
-        currentPage = 1;
-        hasMoreImages = true;
-        await loadUploads(1);
-        await loadStatistics();
-    } catch (error) {
-        console.error('Error deleting image:', error);
-        showToast('Failed to delete image', 'error');
-    }
 }
 
 // Confirmation dialog
@@ -145,18 +224,6 @@ function showConfirmDialog(message) {
         `;
         document.body.appendChild(dialog);
     });
-}
-
-// Copy URL to clipboard with feedback
-async function copyToClipboard(filename) {
-    try {
-        const url = `${window.location.origin}/uploads/${filename}`;
-        await navigator.clipboard.writeText(url);
-        showToast('URL copied to clipboard!');
-    } catch (error) {
-        console.error('Error copying to clipboard:', error);
-        showToast('Failed to copy URL', 'error');
-    }
 }
 
 // Format bytes to human readable size
@@ -294,24 +361,4 @@ async function generateConfig() {
         console.error('Error generating config:', error);
         showToast('Failed to generate config file', 'error');
     }
-}
-
-// Add viewImage function
-function viewImage(filename, mimetype) {
-    const modal = document.createElement('div');
-    modal.className = 'image-modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <img src="/uploads/${filename}" alt="${filename}">
-        </div>
-    `;
-    document.body.appendChild(modal);
-
-    // Close modal when clicking outside or on close button
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal || e.target.className === 'close-modal') {
-            modal.remove();
-        }
-    });
 }

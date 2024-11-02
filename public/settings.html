@@ -25,26 +25,36 @@
 
         <div class="settings-grid">
             <div class="card">
+                <h3>Account Information</h3>
+                <div class="info-group">
+                    <label>Email</label>
+                    <div id="userEmail" class="info-value">Loading...</div>
+                </div>
+                <div class="info-group">
+                    <label>Username</label>
+                    <div id="username" class="info-value">Loading...</div>
+                </div>
+            </div>
+
+            <div class="card">
                 <h3>Upload Settings</h3>
                 <form id="uploadSettingsForm">
                     <div class="form-group">
                         <label for="file_name_length">File Name Length</label>
-                        <input type="number" id="file_name_length" name="file_name_length" min="3" max="50" required>
+                        <input type="number" id="file_name_length" name="file_name_length" min="5" max="32" required>
                     </div>
                     <div class="form-group">
                         <label for="upload_password">Upload Password</label>
                         <div class="password-input-group">
-                            <input type="text" id="upload_password" name="upload_password" placeholder="Enter password or generate one">
-                            <button type="button" onclick="generateUploadPassword()" class="btn btn-secondary">
-                                <i class="fas fa-sync-alt"></i> Generate
+                            <input type="text" id="upload_password" name="upload_password" readonly>
+                            <button type="button" class="btn btn-secondary" onclick="generateUploadPassword()">
+                                <i class="fas fa-sync"></i> Generate
                             </button>
                         </div>
                     </div>
                     <div class="form-group checkbox-group">
-                        <label>
-                            <input type="checkbox" id="hide_user_info" name="hide_user_info">
-                            Hide User Info
-                        </label>
+                        <input type="checkbox" id="hide_user_info" name="hide_user_info">
+                        <label for="hide_user_info">Hide User Information</label>
                     </div>
                     <button type="submit" class="btn btn-primary">Save Settings</button>
                 </form>

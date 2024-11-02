@@ -10,13 +10,17 @@ async function loadUserData() {
         
         if (status === 'success' && data) {
             // Display user info
-            document.getElementById('userEmail').textContent = data.email || 'Not set';
-            document.getElementById('username').textContent = data.username || 'Not set';
-            
-            // Set form values
-            document.getElementById('file_name_length').value = data.file_name_length || 10;
-            document.getElementById('upload_password').value = data.upload_password || '';
-            document.getElementById('hide_user_info').checked = data.hide_user_info || false;
+            const userEmailElement = document.getElementById('userEmail');
+            const usernameElement = document.getElementById('username');
+            const fileNameLengthElement = document.getElementById('file_name_length');
+            const uploadPasswordElement = document.getElementById('upload_password');
+            const hideUserInfoElement = document.getElementById('hide_user_info');
+
+            if (userEmailElement) userEmailElement.textContent = data.email || 'Not set';
+            if (usernameElement) usernameElement.textContent = data.username || 'Not set';
+            if (fileNameLengthElement) fileNameLengthElement.value = data.file_name_length || 10;
+            if (uploadPasswordElement) uploadPasswordElement.value = data.upload_password || '';
+            if (hideUserInfoElement) hideUserInfoElement.checked = data.hide_user_info || false;
         } else {
             throw new Error('Invalid response data');
         }
