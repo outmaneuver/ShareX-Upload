@@ -7,6 +7,7 @@ const path = require('path');
 const { connectDB } = require('./config/config');
 const { isAuthenticated } = require('./middleware/authMiddleware');
 import dashboardRouter from './dashboard/dashboard.js';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -88,4 +89,21 @@ app.use((err, req, res, next) => {
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
+});
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Add this after your other middleware setup
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Add a specific route for serving images with proper headers
+app.get('/uploads/:filename', (req, res) => {
+    const filename = req.params.filename;
+    res.sendFile(path.join(__dirname, 'uploads', filename), {
+        headers: {
+            'Content-Type': 'image/png', // Adjust based on file type
+            'Cache-Control': 'public, max-age=31536000' // Cache for 1 year
+        }
+    });
 });

@@ -28,8 +28,15 @@ async function loadStatistics() {
 let currentPage = 1;
 const PAGE_SIZE = 10;
 
+// Add these variables at the top
+let isLoading = false;
+let hasMoreImages = true;
+
 async function loadUploads(page = 1) {
+    if (isLoading || !hasMoreImages) return;
+    
     try {
+        isLoading = true;
         const response = await fetch(`/dashboard/images?page=${page}&limit=${PAGE_SIZE}`);
         if (!response.ok) throw new Error('Failed to fetch uploads');
         const data = await response.json();
@@ -37,11 +44,19 @@ async function loadUploads(page = 1) {
         const uploadsContainer = document.getElementById('uploads');
         if (page === 1) uploadsContainer.innerHTML = '';
 
+        if (data.data.images.length === 0) {
+            hasMoreImages = false;
+            if (page === 1) {
+                uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
+            }
+            return;
+        }
+
         data.data.images.forEach(image => {
             const uploadItem = document.createElement('div');
             uploadItem.className = 'upload-item';
             uploadItem.innerHTML = `
-                <div class="upload-info">
+                <div class="upload-info" onclick="viewImage('${image.filename}', '${image.mimetype}')">
                     <div class="upload-filename">
                         <i class="fas fa-file"></i> ${image.filename}
                     </div>
@@ -51,10 +66,13 @@ async function loadUploads(page = 1) {
                     </div>
                 </div>
                 <div class="upload-actions">
-                    <button onclick="copyToClipboard('${image._id}')" class="btn btn-secondary btn-sm">
+                    <button onclick="copyToClipboard('${image.filename}')" class="btn btn-secondary btn-sm" title="Copy URL">
                         <i class="fas fa-copy"></i>
                     </button>
-                    <button onclick="deleteImage('${image._id}')" class="btn btn-danger btn-sm">
+                    <button onclick="viewImage('${image.filename}', '${image.mimetype}')" class="btn btn-secondary btn-sm" title="View Image">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button onclick="deleteImage('${image._id}', '${image.filename}')" class="btn btn-danger btn-sm" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -62,14 +80,13 @@ async function loadUploads(page = 1) {
             uploadsContainer.appendChild(uploadItem);
         });
 
-        // Update load more button visibility
-        const loadMoreBtn = document.getElementById('loadMoreBtn');
-        if (loadMoreBtn) {
-            loadMoreBtn.style.display = data.data.hasMore ? 'block' : 'none';
-        }
+        hasMoreImages = data.data.hasMore;
+        
     } catch (error) {
         console.error('Error loading uploads:', error);
         showToast('Failed to load uploads', 'error');
+    } finally {
+        isLoading = false;
     }
 }
 
@@ -80,10 +97,17 @@ function loadMore() {
 }
 
 // Delete image with confirmation
-async function deleteImage(imageId) {
+async function deleteImage(imageId, filename) {
     try {
         const confirmed = await showConfirmDialog('Are you sure you want to delete this image?');
         if (!confirmed) return;
+        
+        // First check if file exists
+        const checkResponse = await fetch(`/uploads/${filename}`, { method: 'HEAD' });
+        if (checkResponse.status === 404) {
+            showToast('Image file not found on server', 'error');
+            return;
+        }
         
         const response = await fetch(`/dashboard/images/${imageId}`, {
             method: 'DELETE',
@@ -96,6 +120,7 @@ async function deleteImage(imageId) {
         
         showToast('Image deleted successfully');
         currentPage = 1;
+        hasMoreImages = true;
         await loadUploads(1);
         await loadStatistics();
     } catch (error) {
@@ -123,9 +148,9 @@ function showConfirmDialog(message) {
 }
 
 // Copy URL to clipboard with feedback
-async function copyToClipboard(imageId) {
+async function copyToClipboard(filename) {
     try {
-        const url = `${window.location.origin}/i/${imageId}`;
+        const url = `${window.location.origin}/uploads/${filename}`;
         await navigator.clipboard.writeText(url);
         showToast('URL copied to clipboard!');
     } catch (error) {
@@ -194,11 +219,18 @@ document.addEventListener('DOMContentLoaded', () => {
     loadUploads(1);
     initializeThemeSwitch();
     
-    // Add infinite scroll
+    // Add debounced scroll handler
+    let scrollTimeout;
     window.addEventListener('scroll', () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
-            loadMore();
-        }
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                if (!isLoading && hasMoreImages) {
+                    currentPage++;
+                    loadUploads(currentPage);
+                }
+            }
+        }, 100);
     });
 });
 
@@ -262,4 +294,24 @@ async function generateConfig() {
         console.error('Error generating config:', error);
         showToast('Failed to generate config file', 'error');
     }
+}
+
+// Add viewImage function
+function viewImage(filename, mimetype) {
+    const modal = document.createElement('div');
+    modal.className = 'image-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <img src="/uploads/${filename}" alt="${filename}">
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    // Close modal when clicking outside or on close button
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.className === 'close-modal') {
+            modal.remove();
+        }
+    });
 }
