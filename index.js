@@ -41,6 +41,52 @@ app.use(session({
     }
 }));
 
+// Public routes
+app.get('/', (req, res) => {
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    }
+});
+
+app.get('/login', (req, res) => {
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    }
+});
+
+app.get('/register', (req, res) => {
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'register.html'));
+    }
+});
+
+app.get('/forgot-password', (req, res) => {
+    if (req.session.userId) {
+        res.redirect('/dashboard');
+    } else {
+        res.sendFile(path.join(__dirname, 'public', 'forgot-password.html'));
+    }
+});
+
+// Protected routes
+app.get('/dashboard', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.get('/settings', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'settings.html'));
+});
+
+app.get('/profile', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
 // API routes
 const authRouter = (await import('./routes/auth.js')).default;
 const settingsRouter = (await import('./routes/settings.js')).default;
@@ -58,16 +104,6 @@ app.use('/api/upload', uploadRouter);
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Error handling
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send('Something broke!');
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
-
 // Add a specific route for serving images with proper headers
 app.get('/uploads/:filename', (req, res) => {
     const filename = req.params.filename;
@@ -77,4 +113,19 @@ app.get('/uploads/:filename', (req, res) => {
             'Cache-Control': 'public, max-age=31536000' // Cache for 1 year
         }
     });
+});
+
+// Error handling
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
