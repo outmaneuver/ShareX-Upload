@@ -132,7 +132,7 @@ async function deleteImage(imageId, filename) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include' // Important for session cookies
+            credentials: 'include'
         });
 
         const data = await response.json();
@@ -149,8 +149,17 @@ async function deleteImage(imageId, filename) {
 
         showToast('Image deleted successfully', 'success');
         
-        // Refresh the uploads list and statistics
-        await loadUploads(1);
+        // Get the current number of images in the container
+        const remainingImages = document.querySelectorAll('.upload-item').length;
+
+        // If this was the last image on the current page, go back one page
+        // unless we're on page 1
+        if (remainingImages === 0 && currentPage > 1) {
+            currentPage--;
+        }
+        
+        // Reload the current page of images
+        await loadUploads(currentPage, true);
         await loadStatistics();
     } catch (error) {
         console.error('Error deleting image:', error);
@@ -170,6 +179,7 @@ async function loadUploads(page = 1, reset = false) {
         const data = await response.json();
         const uploadsContainer = document.getElementById('uploads');
         
+        // Always clear container when reset is true
         if (reset) {
             uploadsContainer.innerHTML = '';
         }
@@ -178,6 +188,11 @@ async function loadUploads(page = 1, reset = false) {
             hasMoreImages = false;
             if (page === 1) {
                 uploadsContainer.innerHTML = '<div class="no-uploads">No uploads found</div>';
+            } else if (data.data.images.length === 0) {
+                // If we're on a page with no images, go back one page
+                currentPage = Math.max(1, currentPage - 1);
+                await loadUploads(currentPage, true);
+                return;
             }
             addPaginationControls();
             return;

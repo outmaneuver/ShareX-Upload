@@ -204,10 +204,23 @@ router.delete('/images/:id', isAuthenticated, async (req, res) => {
             });
         }
 
-        // Soft delete by updating the record
-        image.deleted = true;
-        image.deletedAt = new Date();
-        await image.save();
+        // Delete the file from filesystem
+        try {
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = path.dirname(__filename);
+            const filePath = path.join(__dirname, '..', 'uploads', image.filename);
+            
+            // Check if file exists before attempting deletion
+            await fs.access(filePath);
+            await fs.unlink(filePath);
+            console.log(`File deleted successfully: ${filePath}`);
+        } catch (err) {
+            console.error('File deletion error:', err);
+            // Continue even if file doesn't exist
+        }
+
+        // Delete the database record completely
+        await Upload.deleteOne({ _id: imageId });
 
         res.json({
             status: 'success',
