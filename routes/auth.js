@@ -164,6 +164,7 @@ router.post('/reset-password', async (req, res) => {
     }
 
     try {
+        // Find user with valid reset token
         const user = await User.findOne({ 
             resetToken: token,
             resetTokenExpiry: { $gt: Date.now() }
@@ -176,17 +177,12 @@ router.post('/reset-password', async (req, res) => {
             });
         }
 
-        // Hash new password with bcryptjs
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Update user document directly with the new password
-        await User.findByIdAndUpdate(user._id, {
-            $set: {
-                password: hashedPassword,
-                resetToken: undefined,
-                resetTokenExpiry: undefined
-            }
-        });
+        // Update user's password
+        user.password = password; // Will be hashed by pre-save middleware
+        user.resetToken = undefined;
+        user.resetTokenExpiry = undefined;
+        
+        await user.save(); // This will trigger the pre-save middleware
 
         res.json({ 
             status: 'success',
