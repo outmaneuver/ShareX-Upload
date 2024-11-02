@@ -18,10 +18,10 @@ async function checkForUpdates() {
         await execCommand('git reset --hard HEAD', projectDir);
         
         // Fetch latest changes
-        await execCommand('git fetch origin main', projectDir);
+        await execCommand('git fetch origin master', projectDir);
         
         // Force pull latest changes
-        await execCommand('git pull origin main --force', projectDir);
+        await execCommand('git pull origin master --force', projectDir);
         
         // Restore .env file
         await execCommand('cp .env.backup .env || true', projectDir);
